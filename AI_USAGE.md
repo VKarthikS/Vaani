@@ -15,7 +15,8 @@ We use AI in two different ways, and we're open about both.
 | Tool | Used for |
 |---|---|
 | Claude Code (Anthropic) | Planning, scaffolding, writing code, tests and docs together with the team, phase by phase |
-| ChatGPT | Generating the fictional demo data from `docs/DATA_PROMPT.md` |
+| ChatGPT | Generating the final fictional demo data from `docs/DATA_PROMPT.md` |
+| Claude Code (placeholder data) | A one-off script produced the placeholder `data/` set so development wasn't blocked; same schema, all fictional, validated by `scripts/validate_data.py` |
 | _others added as used_ | |
 
 How we keep it honest:

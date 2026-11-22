@@ -43,6 +43,8 @@ _STT / LLM / TTS candidates compared on latency, accuracy and cost go here._
 
 | Requirement | How verified | Result |
 |---|---|---|
-| No double booking under concurrency | DB race test (Phase 1) | TBD |
+| No double booking under concurrency | `backend/tests/test_db_booking.py`: 20 concurrent callers on one doctor slot and on a restaurant's only 12-seat table | ✅ exactly 1 success, 19 `SLOT_TAKEN` / `SLOT_FULL` (Phase 1, Postgres 15) |
+| Booking rules enforced in the database | same file: slot full, blocked, party limit, doctor leave, past time, unknown business, cancel frees slot | ✅ (Phase 1) |
+| Data integrity | `scripts/validate_data.py` + 15 mutation tests | ✅ placeholder set: 0 errors, 0 warnings |
 | Blocked slot refused by the AI | E2E test (Phase 7) | TBD |
 | Booking visible everywhere < 2 s | E2E test (Phase 7) | TBD |

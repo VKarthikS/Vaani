@@ -45,11 +45,12 @@ Every call runs through one engine and lands in one database, which pushes chang
 | Normaliser | `backend/voice/normalizer.py` | Times, dates, ₹ amounts, party sizes → natural spoken te / hi / en-IN before TTS |
 | Flows | `backend/flows/` | Router, restaurant and hospital nodes (Pipecat Flows), global functions, shared `CallContext`, prompts per language, text CLI |
 | Tools | `backend/tools/` | Implement `CONTRACTS.md` §2; validate everything; write tool timeline; emit `tool_called` |
-| Data access | `backend/db/` (Phase 2) | Repository interface with a Supabase implementation and an in-memory/SQLite one for unit tests |
+| Catalog | `backend/catalog/` | Pydantic models for the 9 data files, loader, cross-file validation, slot schedules (`schedule.py`), seed SQL generation |
+| Data access | `backend/db.py` (+ repository layer in Phase 2) | Postgres connection + SQL scripts for the scripts/tests; Phase 2 adds a repository interface with Supabase and in-memory implementations |
 | Post-call | `backend/postcall/` | Transcript with language tags, outcome JSON, tool timeline, latency, 2-line summary → `calls` |
 | API | `backend/api/` | REST endpoints, Twilio webhooks, payment webhook (signature check), dev simulate |
 | Eval | `backend/eval/` | `eval.py` (text replay of `test_calls.json`), `load_test.py` (N simulated audio callers) |
-| Database | `supabase/` | `schema.sql`, `rls.sql`, `seed.sql`; booking functions lock slot rows; Realtime publication |
+| Database | `supabase/` | `schema.sql`, `rls.sql`, `seed.sql` (generated, dates relative to `vaani_today()`), CLI `config.toml`; booking functions lock slot rows; Realtime publication |
 | Data | `data/`, `scripts/` | 9 JSON files, `validate_data.py`, `seed.py`, `make_seed_sql.py`, `db_apply.py` |
 | Frontend | `frontend/` | Next.js App Router: landing, explore, mini-sites, booking status, mock pay, partner portals (TV), studio, call logs, eval |
 

@@ -4,7 +4,7 @@
 
 **Homingo Hack Days, Edition 01 · Track: LLM apps · Problem C2 "Voice is the interface" · Team PARK**
 
-> 🚧 Work in progress — Phase 0 (repo and docs). Screenshots, demo video and live URL land in later phases.
+> 🚧 Work in progress — Phase 1 done (database, atomic booking, demo data). Screenshots, demo video and live URL land in later phases.
 
 ## The problem
 
@@ -46,12 +46,26 @@ Requirements: macOS/Linux, Docker Desktop, Python 3.11+, [uv](https://docs.astra
 
 ```bash
 git clone <repo-url> vaani && cd vaani
-cp .env.example .env        # fill in keys as phases need them
-uv sync                     # Python deps
-uv run pytest               # tests
+cp .env.example .env                      # fill in keys as phases need them
+uv sync                                   # Python deps
+uv run python scripts/validate_data.py    # check the 9 data files
+uv run pytest                             # tests (DB tests start a temporary Postgres if `initdb` is installed)
 ```
 
-Database, voice server and website setup steps are added as each phase lands (Phase 1: local Supabase; Phase 7: one-command `docker compose up`).
+### Database (local Supabase)
+
+```bash
+brew install supabase/tap/supabase        # CLI; needs Docker Desktop running
+supabase start                            # local Postgres + Realtime + Studio
+supabase status                           # copy API URL, keys and DB URL into .env
+uv run python scripts/db_apply.py         # schema.sql → rls.sql → seed.sql (wipes + reloads)
+```
+
+`supabase db reset` does the same thing (config.toml lists the three files as seed paths). To reseed with fresh dates (slots always cover today + 6 days, IST): `uv run python scripts/seed.py`. After editing `data/`, regenerate the committed seed with `uv run python scripts/make_seed_sql.py`.
+
+Demo data is **placeholder** until the team runs [docs/DATA_PROMPT.md](docs/DATA_PROMPT.md); drop the new files into `data/` and the same commands load them.
+
+Voice server and website setup steps are added as later phases land (Phase 7: one-command `docker compose up`).
 
 ## Evaluation
 
@@ -84,7 +98,7 @@ More: [docs/LIMITS.md](docs/LIMITS.md).
 - [x] Known limits section
 - [x] LICENSE + ATTRIBUTIONS.md (final pass in Phase 8)
 - [x] AI_USAGE.md (final pass in Phase 8)
-- [ ] Content depth: 20 businesses, 40+ test calls, phrases in 3 languages
+- [ ] Content depth: 20 businesses, 40+ test calls, phrases in 3 languages (placeholder set in place; final data pending)
 - [ ] One-command setup: `docker compose up`
 - [ ] Pitch deck
 

@@ -54,4 +54,7 @@ Full plan: `docs/MASTER_PLAN.md`. Call stages: `docs/CALL_FLOW.md`. Pages: `docs
 
 ## Commands
 - Python deps: `uv sync` · tests: `uv run pytest` · lint: `uv run ruff check .` · types: `uv run mypy backend scripts`
-- Data: `uv run python scripts/validate_data.py` · `uv run python scripts/seed.py` (Phase 1)
+- Data: `uv run python scripts/validate_data.py` · regenerate seed after editing `data/`: `uv run python scripts/make_seed_sql.py`
+- DB (wipes + reloads `SUPABASE_DB_URL`): `uv run python scripts/db_apply.py` (schema + RLS + seed) · `uv run python scripts/seed.py` (fresh dates)
+- DB tests start a temporary Postgres (or use `VAANI_TEST_DB_URL`); they must never point at a dev or demo database.
+- Bookings only via `book_table()` / `book_appointment()` / `cancel_booking()` (see `docs/CONTRACTS.md` §1); data shape lives in `backend/catalog/models.py`.

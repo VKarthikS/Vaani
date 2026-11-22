@@ -8,6 +8,9 @@ Vaani is built on open-source libraries and third-party services. This file is u
 |---|---|---|
 | [Pipecat](https://github.com/pipecat-ai/pipecat) / Pipecat Flows | Voice pipeline and conversation flows | BSD-2-Clause |
 | [FastAPI](https://fastapi.tiangolo.com/) | Backend API | MIT |
+| [psycopg 3](https://www.psycopg.org/) | Postgres driver for scripts and tests | LGPL-3.0 |
+| [python-dotenv](https://github.com/theskumar/python-dotenv) | Loads `.env` | BSD-3-Clause |
+| [PostgreSQL](https://www.postgresql.org/) | Database (via Supabase) | PostgreSQL Licence |
 | [Pydantic](https://docs.pydantic.dev/) | Data validation | MIT |
 | [rapidfuzz](https://github.com/rapidfuzz/RapidFuzz) | Fuzzy matching of areas, names, phrases | MIT |
 | [dateparser](https://github.com/scrapinghub/dateparser) | Date/time parsing | BSD-3-Clause |
@@ -42,4 +45,4 @@ No real restaurant or hospital photos or logos are used. Hero images are licence
 
 ## Data
 
-All businesses, doctors, ratings, addresses and bookings are **fictional sample data** created for this demo (placeholder set by the team, full set generated with ChatGPT using `docs/DATA_PROMPT.md` and reviewed by the team). Area names (Jubilee Hills, Gachibowli and neighbouring areas) are real Hyderabad localities used only as locations.
+All businesses, doctors, ratings, addresses and bookings are **fictional sample data** created for this demo. The current files in `data/` are a placeholder set produced with Claude Code (a one-off generator script, then checked by `scripts/validate_data.py`); the final set will be generated with ChatGPT using `docs/DATA_PROMPT.md` and reviewed by the team. Any resemblance of an invented business or person name to a real one is unintended. Area names (Jubilee Hills, Gachibowli and neighbouring areas) are real Hyderabad localities used only as locations.

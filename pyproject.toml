@@ -6,7 +6,11 @@ readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
 # Runtime deps are added phase by phase (Phase 1: data + DB, Phase 2: API, Phase 4: Pipecat).
-dependencies = []
+dependencies = [
+    "psycopg[binary]>=3.3.9",
+    "pydantic>=2.14.4",
+    "python-dotenv>=1.2.4",
+]
 
 [dependency-groups]
 dev = [
@@ -21,11 +25,11 @@ package = false
 [tool.pytest.ini_options]
 testpaths = ["backend/tests"]
 markers = [
-    "db: needs a running Postgres/Supabase (SUPABASE_DB_URL); skipped otherwise",
+    "db: needs Postgres (VAANI_TEST_DB_URL or local initdb/pg_ctl); skipped otherwise",
 ]
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py311"
 
 [tool.ruff.lint]
@@ -35,3 +39,7 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 python_version = "3.11"
 strict = true
 ignore_missing_imports = true
+
+[tool.ruff.lint.per-file-ignores]
+# Long SQL strings in DB tests read better on one line.
+"backend/tests/*" = ["E501"]

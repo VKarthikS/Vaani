@@ -61,7 +61,9 @@ Source of truth: `supabase/schema.sql` (Phase 1). `[]` = Postgres array, `{}` = 
 | booked_table_ids | text[] | tables already taken for that start time |
 | blocked | boolean | staff blocked it → AI must treat it as full |
 
-Bookable start times (fixed for the demo): lunch `12:30 13:00 13:30 14:00`, dinner `19:00 19:30 20:00 20:30 21:00 21:30`, only on days and inside the hours the restaurant is open.
+Bookable start times (fixed for the demo): lunch `12:30 13:00 13:30 14:00`, dinner `19:00 19:30 20:00 20:30 21:00 21:30`, kept only when the start falls inside an opening range (`open <= start < close`).
+
+Demo simplifications: **each start time is an independent seating** (a table booked at 20:00 doesn't block 20:30), and **one party sits at one table**, so `max_party_size` can't exceed the largest table.
 
 ### hospitals
 `hospital_id` PK (`h_gb_01`), `slug` unique, `name`, `name_spoken_te`, `name_spoken_hi`, `name_aliases[]`, `area_id` FK, `type` (`multi-speciality hospital` \| `clinic`), `address`, `rating`, `highlight`, `specialities[]`, `facilities {}` (`emergency_24x7, pharmacy, lab, ambulance, cashless_insurance, wheelchair_access`), `opd_hours {}` (`{"mon": "09:00-20:00", "sun": "" }`, empty = closed), `languages_spoken[]`, `faqs {}`, `phone`, `accent_color`, `is_sample_data`.
@@ -96,9 +98,18 @@ Specialities (closed list): General Medicine, Dermatology, Gynecology, Pediatric
 | call_id | text null | links to the call that made it |
 | created_at, updated_at | timestamptz | |
 
-Double-booking is impossible: partial unique indexes on `(business_id, date, time, table_id)` and `(doctor_id, date, time)` where `status <> 'cancelled'`, and bookings are only created through the Postgres functions `book_table(...)` / `book_appointment(...)`, which lock the slot row.
+Double-booking is impossible: partial unique indexes on `(business_id, date, time, table_id)` and `(doctor_id, date, time)` where `status <> 'cancelled'`, and bookings are only created through the Postgres functions below, which lock the slot row (`select … for update`).
 
-Anon (frontend) reads go through the view **`bookings_public`** (every column except `phone`; name shown as first name + initial).
+| Function | Returns | Raises (`message` = code, `hint` = explanation) |
+|---|---|---|
+| `book_table(restaurant_id, date, time, party_size, name, phone, language='en', source='vaani_call', call_id=null)` | `booking_id, table_id, deposit_needed, deposit_inr` — smallest free table that fits; status `pending_payment` + `amount_due_inr` when a deposit applies, else `confirmed` | `UNKNOWN_BUSINESS`, `PARTY_TOO_LARGE`, `MISSING_DETAILS`, `INVALID_TIME` (past, or not a bookable time), `BLOCKED`, `SLOT_FULL` |
+| `book_appointment(doctor_id, date, time, name, phone, language='en', source='vaani_call', call_id=null)` | `booking_id, fee_inr, hospital_id` — status `pending_payment` with the fee due | `UNKNOWN_DOCTOR`, `DOCTOR_ON_LEAVE`, `MISSING_DETAILS`, `INVALID_TIME`, `BLOCKED`, `SLOT_TAKEN` |
+| `cancel_booking(booking_id)` | the booking row; frees the table / doctor slot; idempotent | `UNKNOWN_BOOKING` |
+| `vaani_today()` | today's date in IST, used by the seed and the functions | — |
+
+Only the service role can execute the booking functions.
+
+Anon (frontend) reads `bookings` through **column-level grants that leave out `phone`**. Supabase Realtime strips columns the subscriber can't select, so live updates never carry phone numbers either.
 
 ### payments
 `payment_id` PK, `booking_id` FK, `amount_inr`, `provider` (`razorpay`\|`stripe`\|`mock`), `provider_ref`, `status` (`created`\|`paid`\|`failed`\|`refunded`), `created_at`, `updated_at`.
@@ -113,7 +124,7 @@ The row is inserted at `call_started` and completed by the post-call processor.
 
 ### Row-level security
 - RLS on for every table. The **service role** (FastAPI only) writes.
-- **anon** can `select`: areas, restaurants, restaurant_tables, restaurant_slots, hospitals, doctors, doctor_slots, speciality_map, payments (no provider secrets stored), bookings_public, calls and call_events (demo dashboards; phone numbers masked in `from_number` before insert).
+- **anon** can `select`: areas, restaurants, restaurant_tables, restaurant_slots, hospitals, doctors, doctor_slots, speciality_map, payments (no provider secrets stored), call_events (the backend masks phone numbers in payloads), and `bookings` / `calls` without their `phone` / `from_number` columns.
 - Realtime publication `supabase_realtime`: bookings, restaurant_slots, doctor_slots, payments, calls, call_events.
 
 ---
@@ -215,7 +226,8 @@ See `.env.example` (kept in sync with this list).
 | LLM_API_KEY, LLM_BASE_URL, LLM_MODEL | backend | any OpenAI-compatible API |
 | TTS_PROVIDER, TTS_API_KEY | backend | `sarvam` (default) \| `elevenlabs` \| `azure` \| `google` |
 | SUPABASE_URL, SUPABASE_SERVICE_KEY | backend, scripts | service key never reaches the browser |
-| SUPABASE_DB_URL | scripts | Postgres connection string for `db_apply.py` and DB tests |
+| SUPABASE_DB_URL | scripts | Postgres connection string for `db_apply.py` / `seed.py` (these **wipe and reload** the database) |
+| VAANI_TEST_DB_URL | tests | optional throwaway Postgres for DB tests (tests wipe it); unset = tests start their own temporary cluster |
 | NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY | frontend | read-only under RLS |
 | NEXT_PUBLIC_BACKEND_URL | frontend | FastAPI base URL |
 | PAYMENT_PROVIDER, PAYMENT_KEY_ID, PAYMENT_KEY_SECRET, PAYMENT_WEBHOOK_SECRET | backend | `mock` \| `razorpay` \| `stripe`, test mode only |

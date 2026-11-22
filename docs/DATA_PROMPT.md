@@ -48,8 +48,8 @@ A JSON array. Exactly 5 restaurants in [AREA_1] (ids r_jh_01..r_jh_05) and 5 in 
 {"restaurant_id": "r_jh_01", "slug": "<name-in-kebab-case>-jubilee-hills", "name": "<fictional>", "name_spoken_te": "<Telugu script>", "name_spoken_hi": "<Devanagari>", "name_aliases": ["<short forms / mis-hearings, lower-case>"], "area_id": "jubilee_hills", "address": "<fictional landmark>, Jubilee Hills", "cuisines": ["North Indian"], "food_type": "veg | non-veg | both", "rating": 4.5, "price_for_two_inr": 1200, "highlight": "<one neutral line>", "popular_dishes": ["<3-5>"], "opening_hours": {"mon": ["12:00-15:30", "19:00-23:00"], "tue": [...], "wed": [...], "thu": [...], "fri": [...], "sat": [...], "sun": [...]}, "features": {"parking": true, "outdoor_seating": false, "kids_friendly": true, "wheelchair_access": true, "live_music": false}, "booking_rules": {"max_party_size": 12, "deposit_required_for_party_size_at_least": 8, "deposit_inr": 500, "cancellation": "<short rule>"}, "tables": [{"table_id": "T1", "capacity": 2}, ...], "slot_length_minutes": 90, "accent_color": "#RRGGBB", "faqs": [{"q": "...", "a_en": "...", "a_te": "...", "a_hi": "..."}], "phone": "DEMO-R-001", "is_sample_data": true}
 - food_type is exactly one of "veg", "non-veg", "both".
 - opening_hours: all 7 day keys, open every day (day_offset maps to a different weekday depending on when we load the data, so no closed days). Weekend hours may be longer. Every restaurant must cover dinner (19:00-21:30 starts); most also cover lunch (12:30-14:00 starts).
-- tables: 8-12 tables, capacities 2/4/6/8, table_ids T1, T2, ... in order.
-- max_party_size between 6 and 16; deposit threshold between 6 and 10 and not above max_party_size.
+- tables: 8-12 tables, capacities 2/4/6/8/10/12, table_ids T1, T2, ... in order. One party sits at one table.
+- max_party_size between 6 and 12 and NOT bigger than the largest table's capacity; deposit threshold between 6 and 10 and not above max_party_size.
 - 4-5 FAQs per restaurant (parking, veg options, kids, timings, deposit, etc.). a_te / a_hi romanised code-mixed.
 
 === FILE 3: restaurant_availability.json ===

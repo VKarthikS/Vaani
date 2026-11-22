@@ -80,14 +80,14 @@ AI:     Ho gaya! Booking ID VN-4821, WhatsApp pe details bhej di hain. Aur kuch?
 
 ```
 AI:     Namaskaram! Nenu Vaani, AI assistant ni. Mee ki emi help kavali?
-Caller: Kukatpally lo dermatologist kavali, ee Saturday.
+Caller: Kukatpally lo dermatologist kavali, repu.
 AI:     Sorry andi, ee demo lo Jubilee Hills, Gachibowli lo matrame hospitals unnai. Vaatilo okati chudamantara?
 Caller: Gachibowli chudu.
-AI:     Gachibowli lo rendu options: CareWell Hospital, 4.4, Dr. Ananya garu, Saturday 10 to 1; Sunrise Clinic, 4.2, Dr. Ravi garu, saayantram 5 to 8. Edi kavali?
-Caller: CareWell, 11 ki.
-AI:     Saturday podduna padakondu gantalaki, CareWell lo Dr. Ananya garu tho. Mee peru cheppandi?
+AI:     Gachibowli lo rendu options: Navaniti Hospital, 4.4, Dr. Ananya garu, podduna 10 to 1; Udayam Family Clinic, 4.2, Dr. Ravi garu, saayantram 5 to 8. Edi kavali?
+Caller: Navaniti, repu 11 ki.
+AI:     Repu podduna padakondu gantalaki, Navaniti lo Dr. Ananya garu tho. Mee peru cheppandi?
 Caller: Lakshmi.
-AI:     Saturday 11 ki, Dr. Ananya garu, Lakshmi garu peru meeda. Confirm cheyyana?
+AI:     Repu 11 ki, Dr. Ananya garu, Lakshmi garu peru meeda. Confirm cheyyana?
 Caller: Avunu.
 AI:     Oka second andi, check chestunna… Ayipoyindi! Booking ID VN-3170. Fee 600 rupayalu, payment link WhatsApp lo pampanu. Inka emaina kavala?
 ```
@@ -100,4 +100,4 @@ Caller: I need a doctor in Gachibowli, my father has severe chest pain and he's 
 AI:     This sounds like an emergency. Please call 108 or 112 immediately. I can't book appointments for emergencies.
 ```
 
-All names above are fictional placeholders; the real ones come from `data/`.
+All names above are fictional and match the placeholder set in `data/` (test calls T01, T21, T30).

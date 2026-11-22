@@ -14,7 +14,7 @@ The demo proves "it got the thing done" by showing four things within about 2 se
 ## Before going live (checklist)
 
 - [ ] Backend deployed (or local + ngrok) and `GET /health` OK; Twilio voice webhook points at `/twilio/inbound`
-- [ ] Data reseeded today (`scripts/seed.py --reset-dynamic`) so slots are on current dates and the demo slot (Spice Garden-style restaurant, tomorrow 20:00) is full
+- [ ] Data reseeded today (`uv run python scripts/seed.py` — wipes test bookings too) so slots are on current dates and the demo slot (Spice Garden-style restaurant, tomorrow 20:00) is full
 - [ ] Click **Enable sound** on the TV portal
 - [ ] All team phones (4 + 1 spare) verified on Twilio and joined to the WhatsApp sandbox
 - [ ] Studio open and showing the green Live dot

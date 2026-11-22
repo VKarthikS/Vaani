@@ -29,12 +29,12 @@ Everyone owns a starting area, but nobody is limited to it. Pick up anything, ti
 - [x] `.env.example`, `docker-compose.yml` skeleton
 
 ### Phase 1 — Data and database
-- [ ] `supabase/schema.sql` with atomic `book_table` / `book_appointment` / `cancel_booking`
-- [ ] `supabase/rls.sql` (anon read-only, `bookings_public` view, Realtime publication)
-- [ ] Placeholder data (9 files) in the DATA_PROMPT schema
-- [ ] `validate_data.py`, `seed.py`, `make_seed_sql.py`, `db_apply.py`
-- [ ] Local Supabase running; schema + seed applied
-- [ ] Tests: validation, seed expansion, booking race
+- [x] `supabase/schema.sql` with atomic `book_table` / `book_appointment` / `cancel_booking`
+- [x] `supabase/rls.sql` (anon read-only, phone columns hidden, Realtime publication)
+- [x] Placeholder data (9 files) in the DATA_PROMPT schema
+- [x] `validate_data.py`, `seed.py`, `make_seed_sql.py`, `db_apply.py`
+- [ ] Local Supabase running; schema + seed applied (blocked: Docker Desktop VM not starting)
+- [x] Tests: validation, seed expansion, booking rules, 20-caller race
 
 ### Phase 2 — Tools and API
 - [ ] All tools in `CONTRACTS.md` §2 + pytest for every rule
