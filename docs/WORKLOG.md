@@ -20,6 +20,15 @@ Baseline on `main`: `uv run pytest -q` → **131 passed** · ruff ✓ · mypy �
 
 ## Entries
 
+### 2026-11-22 16:05 IST · Phase 5 · Karthik via Codex · done
+**Branch:** `feat/vaani-landing-rebuild`
+**Goal:** Rebuild the public landing page for review.
+**Done:** rebuilt `/` as an editorial landing page with a custom waveform, English/Telugu/Hindi content, responsive menu and a scripted restaurant or appointment transcript.
+**Files:** new Next.js app under `frontend/` and one Playwright landing spec.
+**Tests / checks:** lint, typecheck and production build passed. Playwright passed at 1440, 1024 and 390 px. Backend baseline: data validation clean, 31 tests passed and 100 skipped, Ruff and mypy passed.
+**Decisions:** original typography layout and waveform. Uses a phone link only when a valid demo number is configured.
+**Next steps:** review the landing page before starting other routes or integrating browser calling.
+
 ### 2026-11-22 13:04 IST · Phase 3 · Pranav via Claude Code · handed off
 **Branch:** `main` · **Commits:** the commit that adds this entry
 **Goal:** text-mode agent (router + restaurant + hospital flows), CLI and `eval.py`.
