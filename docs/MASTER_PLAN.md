@@ -19,7 +19,7 @@ This is the organised version of the build brief (`docs/SOURCE_PROMPT.md`) and t
 | 11 | Evaluation | [../EVAL.md](../EVAL.md) |
 | 12 | Costs and known limits | [LIMITS.md](LIMITS.md) |
 | 13 | Safety and naturalness | here + [../CLAUDE.md](../CLAUDE.md) |
-| 14 | Phases | here; checklists in [TEAM.md](TEAM.md) |
+| 14 | Phases | here; checklists in [TEAM.md](TEAM.md); per-phase prompts in [PHASE_PROMPTS.md](PHASE_PROMPTS.md); progress in [WORKLOG.md](WORKLOG.md) |
 
 ---
 

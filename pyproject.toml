@@ -8,6 +8,7 @@ requires-python = ">=3.11"
 # Runtime deps are added phase by phase (Phase 1: data + DB, Phase 2: API, Phase 4: Pipecat).
 dependencies = [
     "fastapi>=0.165.0",
+    "openai>=3.57.0",
     "psycopg-pool>=3.3.3",
     "psycopg[binary]>=3.3.9",
     "pydantic>=2.14.4",

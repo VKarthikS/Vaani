@@ -38,6 +38,8 @@ Phone (Twilio Media Streams)      Browser ("Talk to Vaani", WebRTC)
    Next.js websites     WhatsApp / SMS        Payments (test mode)
 ```
 
+**Contributing (people and AI agents):** read [AGENTS.md](AGENTS.md), check [docs/WORKLOG.md](docs/WORKLOG.md) for the current state, and pick a phase from [docs/PHASE_PROMPTS.md](docs/PHASE_PROMPTS.md).
+
 Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Contracts: [docs/CONTRACTS.md](docs/CONTRACTS.md) · Call flow: [docs/CALL_FLOW.md](docs/CALL_FLOW.md) · Websites: [docs/WEBSITES.md](docs/WEBSITES.md) · Full plan: [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md)
 
 ## Setup

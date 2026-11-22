@@ -1,5 +1,7 @@
 # Vaani — Team and task checklists
 
+Progress and handoffs live in [WORKLOG.md](WORKLOG.md); each phase has a ready prompt in [PHASE_PROMPTS.md](PHASE_PROMPTS.md); agent rules in [../AGENTS.md](../AGENTS.md).
+
 Everyone owns a starting area, but nobody is limited to it. Pick up anything, tick it here in the same commit, and say so in the group chat so two people don't build the same thing.
 
 | Person | Starting area | Suggested first tasks |

@@ -7,6 +7,8 @@ Demo data: 2 areas (default Jubilee Hills + Gachibowli), 5 restaurants + 5 hospi
 
 Full plan: `docs/MASTER_PLAN.md`. Call stages: `docs/CALL_FLOW.md`. Pages: `docs/WEBSITES.md`.
 
+**Also follow `AGENTS.md`** (git workflow, secrets, and the mandatory work log in `docs/WORKLOG.md`: read the latest entry first, log as you go). Per-phase prompts: `docs/PHASE_PROMPTS.md`.
+
 ## Team areas (nobody is limited to theirs)
 - Pranav: voice AI (`backend/voice`, `backend/flows`, `backend/tools`, telephony) + integration
 - Karthik: public websites (landing, explore, mini-sites, status page, payments UI)

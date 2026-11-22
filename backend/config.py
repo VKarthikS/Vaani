@@ -34,6 +34,10 @@ class Settings(BaseSettings):
     def _default_when_blank(cls, v: str) -> str:
         return v or "vaani-demo"  # `PARTNER_PASSCODE_SECRET=` in .env means "use the demo default"
 
+    llm_base_url: str = ""
+    llm_model: str = ""
+    llm_api_key: str = ""
+
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""
     twilio_phone_number: str = ""
