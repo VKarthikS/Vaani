@@ -20,6 +20,13 @@ Baseline on `main`: `uv run pytest -q` → **131 passed** · ruff ✓ · mypy �
 
 ## Entries
 
+### 2026-11-22 16:21 IST · Phase 5 · Karthik via Codex · done
+**Branch:** `feat/vaani-landing-rebuild`
+**Goal:** Revise the landing page composition and interactive wordmark.
+**Done:** added an SVG VAANI wordmark with proximity-based pointer deformation and a damped return. Reworked the introduction, conversation specimens, language display and booking sequence. Added masked hero timing, scroll-led details, and a static reduced-motion state.
+**Tests / checks:** lint, typecheck and production build passed. Four Playwright tests passed, including three viewport sizes and real pointer deformation, return to rest and reduced motion.
+**Next steps:** review the full-page screenshots and motion clip before expanding scope.
+
 ### 2026-11-22 16:05 IST · Phase 5 · Karthik via Codex · done
 **Branch:** `feat/vaani-landing-rebuild`
 **Goal:** Rebuild the public landing page for review.

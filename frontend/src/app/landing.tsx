@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { FooterMark } from './footer-mark'
 import { copy, languages, type Language } from './copy'
 
 const sections = ['idea', 'services', 'process', 'demo']
@@ -51,7 +52,7 @@ export function Landing({ phoneNumber }: { phoneNumber?: string }) {
           <VoiceMark />
           <div className="hero-copy">
             <p className="eyebrow">VAANI / VOICE RECEPTIONIST</p>
-            <h1 id="headline">{words.hero.map((line, index) => <span key={index}>{line}</span>)}</h1>
+            <h1 id="headline">{words.hero.map((line, index) => <span className="hero-line" key={index}><span>{line}</span></span>)}</h1>
             <p className="hero-intro">{words.intro}</p>
           </div>
           <div className="hero-foot">
@@ -59,35 +60,41 @@ export function Landing({ phoneNumber }: { phoneNumber?: string }) {
             <a href="#idea">{words.nav[0]} <span aria-hidden="true">↓</span></a>
           </div>
         </section>
-        <section id="idea" className="editorial wrap">
-          <p className="eyebrow">{words.nav[0]}</p>
-          <div><h2>{words.philosophy}</h2><p className="lead">{words.belief}</p><p>{words.product}</p></div>
+        <section id="idea" className="idea wrap">
+          <h2>{words.philosophy}</h2>
+          <div className="idea-copy"><p className="lead">{words.belief}</p><p>{words.product}</p></div>
+          <div className="voice-trace" aria-hidden="true">
+            {Array.from({length: 95}, (_, i) => <i key={i} style={{height: `${(8 + Math.abs(Math.sin(i * .37) * Math.sin(i * .12) * Math.cos(i * .73)) * 87).toFixed(2)}%`}} />)}
+          </div>
         </section>
         <section id="services" className="services wrap">
-          <p className="eyebrow">{words.nav[1]}</p>
           <h2>{words.serviceTitle}</h2>
-          {words.services.map(([name, description], index) => <article className="service" key={index}><span aria-hidden="true">0{index + 1}</span><h3>{name}</h3><p>{description}</p></article>)}
-        </section>
-        <section id="process" className="editorial process wrap">
-          <p className="eyebrow">{words.nav[2]}</p>
-          <div><h2>{words.processTitle}</h2><ol>{words.steps.map((step, index) => <li key={index}>{step}</li>)}</ol></div>
+          <div className="service-list">
+            {words.services.map(([name, description], index) => (
+              <article className="service" key={index}>
+                <blockquote>“{words.exchanges[index][0]}”</blockquote>
+                <h3>{name}</h3><p>{description}</p>
+              </article>
+            ))}
+          </div>
         </section>
         <section className="languages wrap" aria-labelledby="language-heading">
           <div className="scripts" aria-hidden="true"><span lang="te">తెలుగు</span><span lang="hi">हिन्दी</span><span lang="en">English</span></div>
           <div><h2 id="language-heading">{words.languageTitle}</h2><p>{words.languageBody}</p></div>
         </section>
-        <section id="demo" className="editorial demo wrap">
-          <p className="eyebrow">{words.nav[3]}</p>
-          <div>
-            <h2>{words.demoTitle}</h2>
-            <div className="actions">
-              <button type="button" className="action" onClick={() => dialog.current?.showModal()}>{words.cta} <span aria-hidden="true">↗</span></button>
-              {phoneNumber && <a className="action" href={`tel:${phoneNumber}`}>{words.call}</a>}
-            </div>
+        <section id="process" className="process wrap">
+          <h2>{words.processTitle}</h2>
+          <ol>{words.steps.map((step, index) => <li key={index}>{step}</li>)}</ol>
+        </section>
+        <section id="demo" className="demo wrap">
+          <h2>{words.demoTitle}</h2>
+          <div className="actions">
+            <button type="button" className="action" onClick={() => dialog.current?.showModal()}>{words.cta} <span aria-hidden="true">↗</span></button>
+            {phoneNumber && <a className="action" href={`tel:${phoneNumber}`}>{words.call}</a>}
           </div>
         </section>
       </main>
-      <footer className="footer wrap"><span className="wordmark">VAANI<span>.</span></span><span>Homingo Hack Days · <a href="https://github.com/vudigapranav/Vaani">GitHub</a></span><a href="#top">{words.top} ↑</a></footer>
+      <footer className="footer wrap"><FooterMark /><div className="footer-links"><span>Homingo Hack Days · <a href="https://github.com/vudigapranav/Vaani">GitHub</a></span><a href="#top">{words.top} ↑</a></div></footer>
       <dialog ref={dialog} aria-labelledby="sample-title">
         <form method="dialog"><button className="close" aria-label={words.close}>×</button></form>
         <h2 id="sample-title">{words.cta}</h2>
