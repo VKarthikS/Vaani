@@ -44,7 +44,7 @@ export function FooterMark() {
     function draw() {
       const project = ([px,py]: Point): Point => {
         const dx = px - x, dy = py - y
-        const weight = Math.exp(-(dx * dx + dy * dy) / 10500) * strength * .62
+        const weight = Math.exp(-(dx * dx + dy * dy) / 10500) * strength * .45
         return [px + dx * weight, py + dy * weight]
       }
       outlines.forEach((outline, index) => paths[index].setAttribute('d',path(outline.map(project))))
@@ -112,11 +112,11 @@ export function FooterMark() {
   return (
     <svg ref={mark} className="footer-mark" viewBox="0 0 1014 322" role="img" aria-label="VAANI">
       <rect width="1014" height="322" fill="transparent" />
-      <g fill="none" stroke="currentColor" strokeWidth="1.15" strokeLinejoin="round">
+      <g fill="none" stroke="currentColor" strokeWidth=".86" strokeLinejoin="round">
         {outlines.map((outline,index) => <path key={index} d={path(outline)} />)}
       </g>
       <g fill="currentColor">
-        {glyphs.flat().map(([x,y],index) => <circle key={index} cx={x} cy={y} r="2.2" />)}
+        {glyphs.flat().map(([x,y],index) => <circle key={index} cx={x} cy={y} r="1.9" />)}
       </g>
     </svg>
   )

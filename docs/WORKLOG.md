@@ -20,6 +20,13 @@ Baseline on `main`: `uv run pytest -q` → **131 passed** · ruff ✓ · mypy �
 
 ## Entries
 
+### 2026-11-22 16:43 IST · Phase 5 · Karthik via Codex · done
+**Branch:** `feat/vaani-landing-rebuild`
+**Goal:** Refine the landing page against the supplied reference frames.
+**Done:** centered the existing multilingual hero over an original copper voice disc, replaced the alternating panels with a near-black canvas, and added an original Deccan-inspired colonnade before the services. Rebuilt the service rows and booking timeline, and refined the existing SVG wordmark.
+**Tests / checks:** lint, typecheck, production build, and four Playwright tests passed. Captured full-page desktop and mobile screenshots and an in-browser motion clip. Compared desktop captures against the supplied 0–47 second contact sheet.
+**Next steps:** landing-page review.
+
 ### 2026-11-22 16:21 IST · Phase 5 · Karthik via Codex · done
 **Branch:** `feat/vaani-landing-rebuild`
 **Goal:** Revise the landing page composition and interactive wordmark.

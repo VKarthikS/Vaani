@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { FooterMark } from './footer-mark'
 import { copy, languages, type Language } from './copy'
@@ -7,15 +8,11 @@ import { copy, languages, type Language } from './copy'
 const sections = ['idea', 'services', 'process', 'demo']
 const languageOptions = ['en', 'te', 'hi'] as const
 
-function VoiceMark() {
+function VoiceField() {
   return (
-    <svg className="voice-mark" aria-hidden="true" viewBox="0 0 490 560" fill="none">
-      {Array.from({ length: 36 }, (_, index) => {
-        const y = 27 + index * 14
-        const span = Math.sin(index / 35 * Math.PI) * 135
-        return <path key={index} d={`M ${145 - span} ${y} Q 225 ${y - span * .8} 285 ${y} T ${330 + span} ${y}`} stroke="currentColor" opacity={0.35 + span / 250} />
-      })}
-    </svg>
+    <div className="voice-field" aria-hidden="true">
+      <div className="voice-disc"><i /><i /><i /></div>
+    </div>
   )
 }
 
@@ -49,9 +46,12 @@ export function Landing({ phoneNumber }: { phoneNumber?: string }) {
       </header>
       <main id="content" tabIndex={-1}>
         <section className="hero wrap" aria-labelledby="headline">
-          <VoiceMark />
+          <VoiceField />
           <div className="hero-copy">
-            <p className="eyebrow">VAANI / VOICE RECEPTIONIST</p>
+            <svg className="hero-signature" viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor">
+              <circle cx="24" cy="24" r="22" />
+              <path d="M12 24h5l4-9 6 18 4-9h5" strokeLinejoin="round" />
+            </svg>
             <h1 id="headline">{words.hero.map((line, index) => <span className="hero-line" key={index}><span>{line}</span></span>)}</h1>
             <p className="hero-intro">{words.intro}</p>
           </div>
@@ -61,36 +61,50 @@ export function Landing({ phoneNumber }: { phoneNumber?: string }) {
           </div>
         </section>
         <section id="idea" className="idea wrap">
-          <h2>{words.philosophy}</h2>
-          <div className="idea-copy"><p className="lead">{words.belief}</p><p>{words.product}</p></div>
-          <div className="voice-trace" aria-hidden="true">
-            {Array.from({length: 95}, (_, i) => <i key={i} style={{height: `${(8 + Math.abs(Math.sin(i * .37) * Math.sin(i * .12) * Math.cos(i * .73)) * 87).toFixed(2)}%`}} />)}
+          <p className="section-label">{words.nav[0]}</p>
+          <div className="idea-copy">
+            <h2>{words.philosophy}</h2>
+            <p className="lead">{words.belief}</p>
+            <p>{words.product}</p>
           </div>
         </section>
+        <div className="architecture">
+          <Image src="/vaani-colonnade.webp" alt="" fill sizes="100vw" />
+        </div>
         <section id="services" className="services wrap">
-          <h2>{words.serviceTitle}</h2>
+          <div className="section-heading">
+            <p className="section-label">{words.nav[1]}</p>
+            <h2>{words.serviceTitle}</h2>
+          </div>
           <div className="service-list">
             {words.services.map(([name, description], index) => (
               <article className="service" key={index}>
+                <h3>{name}</h3>
                 <blockquote>“{words.exchanges[index][0]}”</blockquote>
-                <h3>{name}</h3><p>{description}</p>
+                <p>{description}</p>
               </article>
             ))}
           </div>
         </section>
-        <section className="languages wrap" aria-labelledby="language-heading">
-          <div className="scripts" aria-hidden="true"><span lang="te">తెలుగు</span><span lang="hi">हिन्दी</span><span lang="en">English</span></div>
-          <div><h2 id="language-heading">{words.languageTitle}</h2><p>{words.languageBody}</p></div>
-        </section>
         <section id="process" className="process wrap">
-          <h2>{words.processTitle}</h2>
+          <div className="section-heading">
+            <p className="section-label">{words.nav[2]}</p>
+            <h2>{words.processTitle}</h2>
+          </div>
           <ol>{words.steps.map((step, index) => <li key={index}>{step}</li>)}</ol>
         </section>
+        <section className="languages wrap" aria-labelledby="language-heading">
+          <div className="scripts" aria-hidden="true"><span lang="te">తెలుగు</span><span lang="hi">हिन्दी</span><span lang="en">English</span></div>
+          <div className="language-copy"><h2 id="language-heading">{words.languageTitle}</h2><p>{words.languageBody}</p></div>
+        </section>
         <section id="demo" className="demo wrap">
-          <h2>{words.demoTitle}</h2>
-          <div className="actions">
-            <button type="button" className="action" onClick={() => dialog.current?.showModal()}>{words.cta} <span aria-hidden="true">↗</span></button>
-            {phoneNumber && <a className="action" href={`tel:${phoneNumber}`}>{words.call}</a>}
+          <p className="section-label">{words.nav[3]}</p>
+          <div>
+            <h2>{words.demoTitle}</h2>
+            <div className="actions">
+              <button type="button" className="action" onClick={() => dialog.current?.showModal()}>{words.cta} <span aria-hidden="true">↗︎</span></button>
+              {phoneNumber && <a className="action" href={`tel:${phoneNumber}`}>{words.call}</a>}
+            </div>
           </div>
         </section>
       </main>

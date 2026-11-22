@@ -11,3 +11,5 @@ Run `npm run lint`, `npm run typecheck` and `npm run build` to check the app.
 
 Typography uses Inter and Anek Telugu and Devanagari (SIL Open Font License).
 The waveform illustration is original vector artwork.
+
+The landing page colonnade is original generated artwork.
