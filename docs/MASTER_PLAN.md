@@ -13,7 +13,7 @@ This is the organised version of the build brief (`docs/SOURCE_PROMPT.md`) and t
 | 5 | Folder structure | here |
 | 6 | Contracts | [CONTRACTS.md](CONTRACTS.md) |
 | 7 | Data | [DATA_PROMPT.md](DATA_PROMPT.md), [CONTRACTS.md §7](CONTRACTS.md) |
-| 8 | Websites | [WEBSITES.md](WEBSITES.md) |
+| 8 | Websites | [WEBSITES.md](WEBSITES.md), frontend build prompt [FRONTEND_PROMPT.md](FRONTEND_PROMPT.md) |
 | 9 | Voice AI details | here |
 | 10 | Demo | [DEMO.md](DEMO.md) |
 | 11 | Evaluation | [../EVAL.md](../EVAL.md) |
@@ -81,7 +81,7 @@ Every provider is swappable behind a small interface (`stt.py`, `llm.py`, `tts.p
 
 ```
 vaani/
-├── docs/            MASTER_PLAN, ARCHITECTURE, CONTRACTS, CALL_FLOW, WEBSITES, DEMO, DATA_PROMPT, TEAM, LIMITS, master-plan.html, SOURCE_PROMPT
+├── docs/            MASTER_PLAN, ARCHITECTURE, CONTRACTS, CALL_FLOW, WEBSITES, DEMO, DATA_PROMPT, FRONTEND_PROMPT, TEAM, LIMITS, master-plan.html, SOURCE_PROMPT
 ├── frontend/        Next.js app
 ├── backend/
 │   ├── voice/       pipeline, transports (twilio, webrtc), stt/llm/tts adapters, normalizer

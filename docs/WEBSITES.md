@@ -4,6 +4,8 @@ All pages live in one Next.js (App Router, strict TypeScript) app in `frontend/`
 
 Owners (suggested starts, anyone can help): Karthik = public side + payments; Akshit = partner + ops side.
 
+**Building the frontend with Claude Code:** paste [FRONTEND_PROMPT.md](FRONTEND_PROMPT.md) (mock-first plan, design direction, components, phases). That prompt defers to `docs/`, so where it differs from the backend, follow *Frontend ↔ backend notes* below.
+
 ## Site map
 
 | Route | Who sees it | Purpose | Start |
@@ -115,6 +117,21 @@ Hospital variant replaces the table line with `Dr. <name> · <speciality>` and a
 ## Realtime subscriptions
 
 `bookings`, `restaurant_slots`, `doctor_slots`, `payments`, `call_events`, filtered by business ID or call ID.
+
+## Frontend ↔ backend notes
+
+Where `FRONTEND_PROMPT.md` and the built backend (Phase 2, [CONTRACTS.md](CONTRACTS.md) §2–4) differ, the backend contract wins:
+
+| Topic | FRONTEND_PROMPT.md says | Backend does |
+|---|---|---|
+| Partner passcodes | `PARTNER_PASSCODES` JSON map checked by a Next.js route handler | Per-business 6-digit codes derived from `PARTNER_PASSCODE_SECRET`; send `X-Partner-Passcode` on partner endpoints (`GET /api/partners/{id}/bookings`, `PATCH` arrived/checked_in, `POST /api/slots/block`, `POST /api/doctors/{id}/leave`). List: `uv run python scripts/partner_passcodes.py`. The login page can verify a code by calling the partner bookings endpoint |
+| Booking phone | `Booking.phone` | Never sent to the browser: API returns `phone_masked` (`+91••••••3210`); Supabase anon reads of `bookings` can't select `phone`, and `calls` can't select `from_number` |
+| Transcript speaker | `"caller" \| "ai"` | `"caller" \| "vaani"` (map in the one mapping file) |
+| Mock pay | "marks the payment paid through the data layer" | Live mode: `POST /api/payments/{booking_id}/mock-pay` (when `PAYMENT_PROVIDER=mock`) |
+| Slot endpoints | shapes not specified | `{restaurant_id, date, in_window, slots: [{time, free_tables, total_tables, blocked, past}]}` and `{doctor_id, date, on_leave, slots: [{time, status, past}]}` |
+| Businesses | — | `GET /api/businesses` items carry `type` + `id`; hospitals include `doctors` |
+| Simulate booking | `POST /api/dev/simulate-booking` | Same, body `{business_id, doctor_id?, date?, time?, party_size?, name?, language?}`; 404 unless `DEV_SIMULATE=true` |
+| Errors | — | `{"detail": {"error": "<CODE>", "message"}}` |
 
 ## Acceptance test
 

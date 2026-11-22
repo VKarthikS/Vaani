@@ -5,8 +5,8 @@ Everyone owns a starting area, but nobody is limited to it. Pick up anything, ti
 | Person | Starting area | Suggested first tasks |
 |---|---|---|
 | **Pranav** | Voice AI + integration lead, captain | Telephony, voice pipeline, router + agents, tools, confirmations; merges everything, deploys |
-| **Karthik** | Websites: public side + payments | Design system, landing, explore, restaurant + hospital mini-sites, booking status, payment pages + webhook UI |
-| **Akshit** | Websites: partner + ops side | Partner portals (floor plan, doctor calendar, TV mode, flash + sound), Live Call Studio, call logs, eval page |
+| **Karthik** | Websites: public side + payments (start from [FRONTEND_PROMPT.md](FRONTEND_PROMPT.md)) | Design system, landing, explore, restaurant + hospital mini-sites, booking status, payment pages + webhook UI |
+| **Akshit** | Websites: partner + ops side (start from [FRONTEND_PROMPT.md](FRONTEND_PROMPT.md)) | Partner portals (floor plan, doctor calendar, TV mode, flash + sound), Live Call Studio, call logs, eval page |
 | **Rithvik** | Data, evaluation, demo (suggested) | Run the ChatGPT data prompt, validate + seed, test set, eval runs, naturalness ratings, README/deck/video |
 
 **How the work connects:** websites never wait for the voice AI. They read Supabase and write through the backend endpoints in `CONTRACTS.md` §3, and the dev-only "Simulate a call booking" button lets the website team test live updates before calls work. When the voice AI books for real, the same events fire.
