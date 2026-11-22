@@ -1,0 +1,37 @@
+[project]
+name = "vaani"
+version = "0.0.1"
+description = "Vaani — one phone number, one AI voice agent for restaurant and doctor bookings in Telugu, Hindi and Indian English"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+# Runtime deps are added phase by phase (Phase 1: data + DB, Phase 2: API, Phase 4: Pipecat).
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "ruff>=0.6",
+    "mypy>=1.11",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+markers = [
+    "db: needs a running Postgres/Supabase (SUPABASE_DB_URL); skipped otherwise",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true

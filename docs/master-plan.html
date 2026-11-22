@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vaani — Master Plan &amp; Team Work Plan (Homingo Hack Days C2)</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161a21; --panel2:#1c212a; --line:#2a313c; --text:#e8ecf2; --muted:#9aa5b4;
+    --accent:#ff8a3d; --accent2:#4fc3f7; --good:#4caf7d; --warn:#f2b84b; --bad:#ef5d5d;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif}
+  a{color:var(--accent2)}
+  header.top{padding:36px 24px 24px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#171b23,#0f1115)}
+  header.top h1{margin:0 0 6px;font-size:30px;letter-spacing:-.3px}
+  header.top h1 span{color:var(--accent)}
+  header.top p{margin:0;color:var(--muted);max-width:900px}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .pill{font-size:12px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:var(--panel)}
+  .layout{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+  nav.side{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:18px 12px;border-right:1px solid var(--line);background:#0d0f13}
+  nav.side a{display:block;padding:6px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:13.5px}
+  nav.side a:hover,nav.side a.active{background:var(--panel2);color:var(--text)}
+  nav.side .grp{margin:14px 10px 4px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#6f7a89}
+  main{padding:24px 32px 80px;max-width:1100px}
+  section{padding:28px 0;border-bottom:1px solid var(--line)}
+  h2{font-size:22px;margin:0 0 10px}
+  h3{font-size:17px;margin:22px 0 8px;color:#fff}
+  h4{font-size:15px;margin:16px 0 6px;color:var(--accent2)}
+  p.lead{font-size:16px;color:#cfd6e0;margin-top:0}
+  table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:14px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--panel2);font-weight:600}
+  tr:nth-child(even) td{background:#12161c}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--panel2);padding:1px 5px;border-radius:5px}
+  pre{position:relative;background:#0b0d11;border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;font-family:var(--mono);font-size:12.5px;line-height:1.5;white-space:pre-wrap}
+  pre .copy{position:absolute;top:8px;right:8px;font:12px system-ui;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:4px 9px;cursor:pointer}
+  pre .copy:hover{border-color:var(--accent)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .note{border-left:3px solid var(--warn);background:#1d1a12;padding:10px 14px;border-radius:6px;margin:12px 0}
+  .ok{border-left:3px solid var(--good);background:#121c16;padding:10px 14px;border-radius:6px;margin:12px 0}
+  .tag{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);margin-right:4px}
+  .tag.p{border-color:var(--accent);color:var(--accent)}
+  .tag.k{border-color:#b388ff;color:#b388ff}
+  .tag.a{border-color:var(--accent2);color:var(--accent2)}
+  .tag.r{border-color:var(--good);color:var(--good)}
+  .tag.all{border-color:#888;color:#ccc}
+  ul.tasks{list-style:none;padding-left:0;margin:8px 0}
+  ul.tasks li{display:flex;gap:10px;align-items:flex-start;padding:6px 8px;border-radius:8px}
+  ul.tasks li:hover{background:#141920}
+  ul.tasks input{margin-top:5px;accent-color:var(--accent);transform:scale(1.15)}
+  ul.tasks li.done span{color:#6f7a89;text-decoration:line-through}
+  .progress{height:8px;background:var(--panel2);border-radius:999px;overflow:hidden;margin:6px 0 2px}
+  .progress > div{height:100%;background:linear-gradient(90deg,var(--accent),#ffb27a);width:0%}
+  .small{font-size:12.5px;color:var(--muted)}
+  /* architecture diagram */
+  .arch{display:flex;flex-direction:column;align-items:stretch;gap:0;margin:14px 0}
+  .arch .row{display:grid;gap:12px}
+  .arch .box{background:var(--panel);border:1px solid #3a4250;border-radius:10px;padding:10px 12px}
+  .arch .box b{display:block;margin-bottom:2px}
+  .arch .box span{color:var(--muted);font-size:13px}
+  .arch .box.hl{border:2px solid var(--accent);background:#21180f}
+  .arch .box.cont{background:#12161c;border-style:dashed}
+  .arch .down{text-align:center;color:#6f7a89;font-size:18px;line-height:26px}
+  .owner{font-size:11px;float:right;margin-left:6px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr} nav.side{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line)} .grid2,.grid3{grid-template-columns:1fr} main{padding:18px}}
+  @media print{nav.side,.copy{display:none} .layout{grid-template-columns:1fr} body{background:#fff;color:#000} .card,pre,th,td{background:#fff !important;color:#000}}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Vaani <span>·</span> Master Plan &amp; Team Work Plan</h1>
+  <p>One phone number, answered by one AI, that books restaurant tables and hospital appointments in Telugu, Hindi and Indian English over a real live call. Homingo Hack Days, Edition 01 · Track: LLM apps · Problem statement C2 "Voice is the interface".</p>
+  <div class="pills">
+    <span class="pill">Team PARK: Pranav · Karthik · Rithvik · Akshit</span>
+    <span class="pill">Submissions: 4–6 Dec 2026, close 11:59 PM IST (captain submits)</span>
+    <span class="pill">Version: 22 Nov 2026</span>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side" id="toc">
+  <div class="grp">Plan</div>
+  <a href="#overview">1. Overview</a>
+  <a href="#product">2. What we're building</a>
+  <a href="#callflow">3. How a call works</a>
+  <a href="#arch">4. Architecture</a>
+  <a href="#stack">5. Tech stack</a>
+  <a href="#features">6. Features</a>
+  <div class="grp">Who does what</div>
+  <a href="#team">7. Team work plan</a>
+  <a href="#voice">8. Voice AI build (Pranav)</a>
+  <a href="#web">9. Websites build (Karthik &amp; Akshit)</a>
+  <a href="#integration">10. Integration (Pranav)</a>
+  <a href="#data">11. Data &amp; ChatGPT prompt</a>
+  <div class="grp">Shared</div>
+  <a href="#contracts">12. Contracts (must match)</a>
+  <a href="#claudemd">13. CLAUDE.md for AI agents</a>
+  <a href="#demo">14. Demo setup &amp; script</a>
+  <a href="#eval">15. Evaluation</a>
+  <a href="#limits">16. Costs &amp; known limits</a>
+  <a href="#safety">17. Safety &amp; naturalness</a>
+  <a href="#submit">18. Submission checklist</a>
+</nav>
+
+<main>
+
+<!-- 1 -->
+<section id="overview">
+  <h2>1. Overview</h2>
+  <p class="lead">We're building <b>Vaani</b>: callers dial one number, speak naturally in Telugu, Hindi or Indian English, and the AI searches our partner restaurants and hospitals, checks live slots, books, and sends a WhatsApp confirmation, while the business's own screen updates live.</p>
+  <table>
+    <tr><th>Item</th><th>Detail</th></tr>
+    <tr><td>Problem statement</td><td><b>C2: Voice is the interface.</b> Apps where voice is the whole product: they take the call, understand people however they speak, and get the thing done.</td></tr>
+    <tr><td>Judges look for</td><td>It works live on a real problem · measured evidence, not just a demo · ambition (the hard part) · company potential. LLM apps track adds: grounded answers, measured quality, attention to UX, latency and cost.</td></tr>
+    <tr><td>Required to submit</td><td>Public GitHub repo with README + setup steps, and a short demo video (YouTube / Loom / Drive link)</td></tr>
+    <tr><td>Optional (we do both)</td><td>Deployed URL and pitch deck</td></tr>
+  </table>
+  <h3>Problems we solve</h3>
+  <table>
+    <tr><th>Problem</th><th>Traditional way</th><th>Vaani way</th></tr>
+    <tr><td>Language barriers</td><td>Apps and IVRs mostly in English or formal Hindi</td><td>Speak Telugu, Hindi or Indian English, mixed freely</td></tr>
+    <tr><td>Limited digital literacy</td><td>Forms, apps, OTP flows</td><td>Just talk; the AI fills everything in</td></tr>
+    <tr><td>Complicated booking apps</td><td>Many screens, filters, sign-ups</td><td>One call, one minute</td></tr>
+    <tr><td>Can't or won't type</td><td>Elderly people, busy workers, non-Latin script users</td><td>Voice only</td></tr>
+    <tr><td>Accessibility</td><td>Low vision, low literacy, keypad phones</td><td>Works on any phone, no app, no internet</td></tr>
+    <tr><td>Poor customer service</td><td>"Press 1, press 2", hold times, limited hours</td><td>Answers instantly, 24/7, many calls at once</td></tr>
+  </table>
+  <div class="ok"><b>Pitch line:</b> Most Indians would rather talk than type, but every service is still built for typing. Vaani works on every phone in India, even without internet.</div>
+</section>
+
+<!-- 2 -->
+<section id="product">
+  <h2>2. What we're building</h2>
+  <p class="lead">One number, one AI, two services, two demo areas.</p>
+  <table>
+    <tr><th>Service</th><th>Caller says</th><th>AI does</th></tr>
+    <tr><td>Restaurant table booking</td><td>"Jubilee Hills lo manchi restaurant cheppu, repu night 6 mandi ki"</td><td>Suggests the top 3 by rating, reads free slots, books a table, sends confirmation (+ deposit link for big groups)</td></tr>
+    <tr><td>Hospital / doctor appointment</td><td>"Gachibowli mein dermatologist chahiye Saturday ko"</td><td>Maps the need to a speciality, suggests the top 3 hospitals and doctors, reads free slots, books, sends confirmation (+ consultation fee link)</td></tr>
+  </table>
+  <div class="grid2">
+    <div class="card"><b>Demo data</b><br>2 areas: <code>[AREA_1]</code> and <code>[AREA_2]</code> (e.g. Jubilee Hills, Gachibowli). 5 restaurants and 5 hospitals in each area, so 20 fictional businesses. Any other area gets: "For this demo we only cover [AREA_1] and [AREA_2]. Shall I check one of these?"</div>
+    <div class="card"><b>One number, many services</b><br>A front-desk router detects language and need, then hands off to the restaurant or hospital agent. Name, phone and language carry over, and the caller can switch service mid-call.</div>
+    <div class="card"><b>Languages</b><br>Telugu, Hindi, Indian English (en-IN voices only, no British or US accent), code-mixing allowed. Tamil, Kannada and Malayalam listed as "supported, being tuned" after provider checks.</div>
+    <div class="card"><b>Scale</b><br>Search returns only the top 3, so the design works for 20 or 300 businesses. 4 real phone calls at once in the demo, plus browser calls, plus a load test at 5 / 10 / 15 callers.</div>
+  </div>
+  <p class="small">Out of scope for now (pitched as "next playbooks on the same engine"): government schemes, bank status, bus tickets, surveys, payment reminders.</p>
+</section>
+
+<!-- 3 -->
+<section id="callflow">
+  <h2>3. How a call works</h2>
+  <p class="lead">On inbound calls the AI speaks first. The LLM chooses the words; the flow and the code decide what happens.</p>
+  <h3>Four layers of control</h3>
+  <ol>
+    <li><b>System prompt:</b> persona, warm casual code-mixed style, 1–2 sentences per reply, safety rules.</li>
+    <li><b>Conversation flow (Pipecat Flows):</b> which stage the call is in; what must happen before moving on.</li>
+    <li><b>Tools:</b> the only way to act (search, slots, book, confirm). Rules are checked in code.</li>
+    <li><b>Example dialogues:</b> 3–5 per service per language to teach the natural style.</li>
+  </ol>
+  <h3>Call stages</h3>
+  <ol>
+    <li><b>Greet:</b> "Namaskaram! Nenu Vaani, AI assistant ni. Mee ki emi help kavali?" (3–4 seconds)</li>
+    <li><b>Language:</b> detect from the first sentence; keypad fallback ("Telugu ki 1, Hindi ki 2, English ki 3").</li>
+    <li><b>Intent:</b> router picks restaurant or hospital; asks one short question if unclear.</li>
+    <li><b>Collect:</b> area, date, time, party size or speciality, name. Only what's missing, one at a time; changes accepted anytime.</li>
+    <li><b>Search:</b> read the top 3 options aloud (name, rating, one detail). Never more than 3.</li>
+    <li><b>Slots:</b> read free times; if full, offer the 2 nearest.</li>
+    <li><b>Confirm:</b> one compact read-back, then "yes".</li>
+    <li><b>Act:</b> book via the tool, with a filler line while it runs.</li>
+    <li><b>Close:</b> booking ID, "details sent on WhatsApp", "anything else?", goodbye.</li>
+    <li><b>Post-call:</b> save transcript, outcome JSON, tool timeline, latency; dashboards update.</li>
+  </ol>
+  <div class="note"><b>At any stage:</b> caller interrupts → stop speaking at once · silence → "Hello, vinipistunda?" twice, then goodbye · off-topic → polite redirect, wrap up after 2–3 turns · "talk to a human" → handoff/callback · emergency words → "Please call 108 or 112 immediately", no booking.</div>
+  <h3>Sample call: Hindi, restaurant</h3>
+  <pre>AI:     Namaste! Main Vaani hoon, AI assistant. Bataiye, kya madad karoon?
+Caller: Jubilee Hills mein koi achha restaurant batao, kal raat 6 logon ke liye.
+AI:     Jubilee Hills mein teen achhe options hain: Spice Garden, rating 4.5, North Indian;
+        Coastal Kitchen, 4.3, seafood; Green Leaf, 4.2, pure veg. Kaunsa pasand karenge?
+Caller: Spice Garden. Kitne baje available hai?
+AI:     Kal 7:30 ya 8:30 baje table hai, 8 baje full hai.
+Caller: 8:30 theek hai. Naam Pranav.
+AI:     Kal raat 8:30, Spice Garden, 6 log, Pranav ji ke naam pe. Confirm karoon?
+Caller: Haan.
+AI:     Ho gaya! Booking ID VN-4821, WhatsApp pe details bhej di hain. Aur kuch?</pre>
+  <h3>Sample call: Telugu, hospital (unsupported area first)</h3>
+  <pre>Caller: Kukatpally lo dermatologist kavali, ee Saturday.
+AI:     Sorry andi, ee demo lo [AREA_1], [AREA_2] lo matrame hospitals unnai. Vaatilo okati chudamantara?
+Caller: Gachibowli chudu.
+AI:     Gachibowli lo rendu options: CareWell Hospital, 4.4, Dr. Ananya garu, Saturday 10 to 1;
+        Sunrise Clinic, 4.2, Dr. Ravi garu, saayantram 5 to 8. Edi kavali?</pre>
+  <p class="small">All names here are fictional placeholders. Use the generated demo data.</p>
+</section>
+
+<!-- 4 -->
+<section id="arch">
+  <h2>4. Architecture</h2>
+  <p class="lead">Every call runs through one engine and lands in one database, which pushes changes live to every website.</p>
+  <div class="arch">
+    <div class="row" style="grid-template-columns:1fr 1fr">
+      <div class="box"><span class="owner tag p">Pranav</span><b>Phone call (any phone)</b><span>Twilio number streams live audio (Media Streams websocket) to our server</span></div>
+      <div class="box"><span class="owner tag p">Pranav</span><b>Browser call</b><span>"Talk to Vaani" button, WebRTC via the Pipecat client</span></div>
+    </div>
+    <div class="down">↓</div>
+    <div class="box"><span class="owner tag p">Pranav</span><b>Voice server · FastAPI + Pipecat</b><span>VAD + turn detection → streaming STT → LLM → normaliser → streaming TTS · barge-in, fillers, silence handling · latency logged every turn</span></div>
+    <div class="down">↓</div>
+    <div class="box cont"><span class="owner tag p">Pranav</span><b>Conversation flows · Pipecat Flows</b>
+      <div class="row" style="grid-template-columns:1fr 1fr 1fr;margin-top:8px">
+        <div class="box"><b>Router (front desk)</b><span>Detects language and need; hands off; name/phone/language carry over</span></div>
+        <div class="box"><b>Restaurant agent</b><span>Area → top 3 → free slots → book; alternatives when full</span></div>
+        <div class="box"><b>Hospital agent</b><span>Plain words → speciality → doctor → book; emergency → 108/112</span></div>
+      </div>
+    </div>
+    <div class="down">↓</div>
+    <div class="box hl"><span class="owner tag p">Pranav</span><b>Tools · every rule enforced in code</b><span>resolve_area · search_restaurants · get_restaurant_slots · book_table · map_speciality · search_hospitals · get_doctor_slots · book_appointment · answer_faq · send_confirmation · create_payment_link</span></div>
+    <div class="down">↓</div>
+    <div class="box"><span class="owner tag all">Shared</span><b>Supabase · Postgres + Realtime + Storage</b><span>areas · restaurants · tables · slots · hospitals · doctors · bookings · payments · calls — every change pushed live within ~2 s</span></div>
+    <div class="down">↓</div>
+    <div class="row" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="box"><span class="owner tag k">Karthik</span><span class="owner tag a">Akshit</span><b>Websites (Next.js)</b><span>Mini-sites, partner portals (TV), Live Studio, status page</span></div>
+      <div class="box"><span class="owner tag p">Pranav</span><b>WhatsApp / SMS (Twilio)</b><span>Booking confirmation card, payment received message</span></div>
+      <div class="box"><span class="owner tag k">Karthik</span><span class="owner tag p">Pranav</span><b>Payments (test mode)</b><span>Razorpay / Stripe test link; webhook marks booking paid</span></div>
+    </div>
+  </div>
+  <p class="small">Owner tags show who starts each block, not who is allowed to touch it. The voice server runs one pipeline per live call. It's hosted near India on Fly.io / Render / Railway (needs long-lived websockets, so not Vercel). The Next.js frontend runs on Vercel.</p>
+</section>
+
+<!-- 5 -->
+<section id="stack">
+  <h2>5. Tech stack</h2>
+  <table>
+    <tr><th>Layer</th><th>Choice</th><th>Backup / note</th></tr>
+    <tr><td>Frontend framework</td><td>Next.js (App Router) + TypeScript</td><td>Hosted on Vercel</td></tr>
+    <tr><td>Styling &amp; UI</td><td>Tailwind CSS, shadcn/ui, Lucide icons</td><td>—</td></tr>
+    <tr><td>Animation</td><td>Framer Motion; React Three Fiber for the audio-reactive 3D voice orb</td><td>—</td></tr>
+    <tr><td>Charts</td><td>Recharts</td><td>—</td></tr>
+    <tr><td>Frontend state &amp; realtime</td><td>Zustand + Supabase Realtime</td><td>Backend websocket</td></tr>
+    <tr><td>Browser call client</td><td>Pipecat client SDK (<code>@pipecat-ai/client-js</code>, WebRTC)</td><td>Daily / LiveKit</td></tr>
+    <tr><td>Backend</td><td>Python 3.11+, FastAPI, Pydantic</td><td>—</td></tr>
+    <tr><td>Voice pipeline</td><td>Pipecat + Pipecat Flows (VAD, turn detection, barge-in, Twilio serializer)</td><td>LiveKit Agents / Vapi</td></tr>
+    <tr><td>Telephony</td><td>Twilio Programmable Voice + Media Streams (trial)</td><td>Exotel / Plivo later (Indian numbers need business KYC)</td></tr>
+    <tr><td>Confirmations</td><td>Twilio WhatsApp sandbox</td><td>SMS (may be filtered under India's DLT rules)</td></tr>
+    <tr><td>Speech-to-text</td><td>Sarvam (Indian languages, code-mixing)</td><td>Deepgram / Whisper</td></tr>
+    <tr><td>LLM</td><td>Fastest model with reliable JSON, on an API with enough concurrency</td><td>Featherless for dev; Groq / OpenAI / Gemini Flash for 4+ calls</td></tr>
+    <tr><td>Text-to-speech</td><td>Winner of the blind voice test (Sarvam Bulbul, ElevenLabs, Azure/Google, Indic Parler-TTS)</td><td>en-IN voices only</td></tr>
+    <tr><td>Database</td><td>Supabase Postgres + Realtime + Storage</td><td>SQLite for local dev</td></tr>
+    <tr><td>Matching &amp; parsing</td><td>rapidfuzz; dateparser + custom Telugu/Hindi time parser</td><td>—</td></tr>
+    <tr><td>Payments</td><td>Razorpay or Stripe test-mode links + webhook</td><td>Mock <code>/pay</code> page</td></tr>
+    <tr><td>Hosting</td><td>Voice server: Fly.io / Render / Railway near India · Frontend: Vercel</td><td>ngrok for local dev</td></tr>
+    <tr><td>Packaging &amp; tests</td><td>Docker, <code>docker compose up</code>, pytest, Keploy</td><td>—</td></tr>
+    <tr><td>Build tools</td><td>Claude Code (Sonnet for coding, Opus for planning/hard bugs), ChatGPT (data, Telugu/Hindi phrasing)</td><td>Neither gives the running app API access</td></tr>
+  </table>
+  <div class="note"><b>APIs, not a local LLM.</b> 4–15 simultaneous calls with ~1-second replies need fast, high-concurrency inference, and small local models are weaker in Telugu and Hindi. "Can be hosted on the bank's or hospital's own servers" stays a pitch point.</div>
+</section>
+
+<!-- 6 -->
+<section id="features">
+  <h2>6. Features</h2>
+  <table>
+    <tr><th>Area</th><th>Feature</th><th>MVP</th><th>Full</th></tr>
+    <tr><td>Channels</td><td>Browser call (WebRTC mic button)</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Channels</td><td>Inbound phone call on the Twilio number</td><td>Stretch</td><td>✓</td></tr>
+    <tr><td>Channels</td><td>WhatsApp confirmation (SMS fallback) + booking status page</td><td>On-screen</td><td>✓</td></tr>
+    <tr><td>Voice engine</td><td>Streaming STT → LLM → TTS, reply starts in ~1 s</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Voice engine</td><td>Barge-in, turn detection, silence handling</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Voice engine</td><td>Language detect/switch (te / hi / en-IN), keypad fallback</td><td>te/hi/en</td><td>+ ta/kn/ml</td></tr>
+    <tr><td>Voice engine</td><td>Number/time normaliser ("20:30" → "saadhe aath baje")</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Voice engine</td><td>Fillers, backchannels, varied phrasing</td><td>Basic</td><td>✓</td></tr>
+    <tr><td>Router</td><td>Router → restaurant / hospital agent, mid-call switch</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Restaurant</td><td>Search by area, cuisine, veg, party size; top 3 by rating</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Restaurant</td><td>Live slots, alternatives when full, booking with ID</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Restaurant</td><td>FAQs; deposit link for big groups</td><td>FAQs</td><td>+ deposit</td></tr>
+    <tr><td>Hospital</td><td>Plain words → speciality, no diagnosis</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Hospital</td><td>Hospital + doctor search, slots, booking, fee link</td><td>Booking</td><td>+ fee link</td></tr>
+    <tr><td>Hospital</td><td>Emergency phrases → "call 108 / 112", no booking</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Safety</td><td>AI disclosure, guardrails, rules in code, human handoff</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Post-call</td><td>Transcript, outcome JSON, tool timeline, latency</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Post-call</td><td>Summary, recording, payment sync, reminder message</td><td>—</td><td>✓</td></tr>
+    <tr><td>Frontend</td><td>Landing page with 3D orb</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Frontend</td><td>Live Call Studio (transcript, slots, activity timeline, latency)</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Frontend</td><td>Partner portals (restaurant floor plan, hospital doctor calendar), TV mode</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Frontend</td><td>Public mini-sites with live slot widgets</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Frontend</td><td>Explore page, call logs, live call tiles, evaluation page</td><td>Logs</td><td>✓</td></tr>
+    <tr><td>Scale</td><td>4 phone calls at once + load test 5/10/15</td><td>—</td><td>✓</td></tr>
+    <tr><td>Evaluation</td><td><code>eval.py</code> on the 40-call test set</td><td>✓</td><td>✓</td></tr>
+  </table>
+</section>
+
+<!-- 7 -->
+<section id="team">
+  <h2>7. Team work plan</h2>
+  <p class="lead">Everyone owns a starting area, but nobody is limited to it. Pick up anything on any list, tick it off here, and say so in the group chat so two people don't build the same thing.</p>
+  <div class="grid2">
+    <div class="card"><span class="tag p">Pranav</span><b>Voice AI + integration lead</b><br>Builds the live call engine (telephony, voice pipeline, router and agents, tools, confirmations), then connects everything in his repo: websites, data, payments, deployment. Captain for the final merge.</div>
+    <div class="card"><span class="tag k">Karthik</span><b>Websites: public side + payments</b><br>Suggested start: design system, landing page, restaurant and hospital mini-sites, explore page, booking status page, payment pages and webhook UI.</div>
+    <div class="card"><span class="tag a">Akshit</span><b>Websites: partner + ops side</b><br>Suggested start: partner portals (restaurant floor plan, hospital doctor calendar, TV mode, flash + sound), Live Call Studio, call logs, evaluation page.</div>
+    <div class="card"><span class="tag r">Rithvik</span><b>Open: suggested data, evaluation, demo</b><br>Not assigned yet. Suggested start: run the ChatGPT data prompt, validate and seed data, write the test set and <code>eval.py</code> runs, organise the naturalness ratings, help with README, deck and demo video. Free to take anything else.</div>
+  </div>
+  <div class="note"><b>How the work connects:</b> websites never wait for the voice AI. They read and write the same Supabase tables through the backend endpoints in section 12, and a dev-only "Simulate a call booking" button lets Karthik and Akshit test live updates before Pranav's calls work. When the voice AI books for real, the same events fire.</div>
+  <h3>Shared first steps (everyone, ~30 minutes together)</h3>
+  <ul class="tasks" data-key="shared-start">
+    <li><input type="checkbox"><span>Pick the two areas and send the data prompt (section 11)</span></li>
+    <li><input type="checkbox"><span>Agree on the contracts in section 12: tables, tools, endpoints, realtime events, outcome JSON</span></li>
+    <li><input type="checkbox"><span>Pranav creates the base repo: <code>data/</code>, <code>supabase/schema.sql</code>, <code>CLAUDE.md</code>, <code>.env.example</code>, LICENSE, ATTRIBUTIONS.md. Everyone clones it.</span></li>
+    <li><input type="checkbox"><span>One shared Supabase project; everyone gets access</span></li>
+    <li><input type="checkbox"><span>Twilio trial: verify all 4 phones + 1 spare; everyone joins the WhatsApp sandbox</span></li>
+    <li><input type="checkbox"><span>Blind voice test: 5 lines × 3–4 TTS voices × te / hi / en-IN, over a real phone line, 10 raters</span></li>
+  </ul>
+  <div class="progress"><div data-for="shared-start"></div></div><div class="small" data-count="shared-start"></div>
+</section>
+
+<!-- 8 -->
+<section id="voice">
+  <h2>8. Voice AI build <span class="tag p">Pranav</span><span class="tag all">anyone can help</span></h2>
+  <p class="lead">Goal: a caller (browser first, then phone) completes a restaurant or hospital booking in Telugu, Hindi or Indian English, with replies starting in about 1 second, and every action written to Supabase.</p>
+
+  <h3>8.1 Accounts and keys</h3>
+  <ul class="tasks" data-key="v-accounts">
+    <li><input type="checkbox"><span>Twilio trial: buy the trial number, verify team phones, enable the WhatsApp sandbox</span></li>
+    <li><input type="checkbox"><span>Sarvam API key (STT + TTS); check all needed languages and rate limits</span></li>
+    <li><input type="checkbox"><span>LLM API with enough concurrency for 4+ live calls (test 2–3 models for latency and JSON reliability)</span></li>
+    <li><input type="checkbox"><span>Backup TTS key (ElevenLabs or Azure/Google) for the voice test</span></li>
+    <li><input type="checkbox"><span>ngrok for local <code>wss://</code> URL; Fly.io / Render / Railway account for hosting near India</span></li>
+  </ul>
+  <div class="progress"><div data-for="v-accounts"></div></div><div class="small" data-count="v-accounts"></div>
+
+  <h3>8.2 Voice pipeline (browser first)</h3>
+  <ul class="tasks" data-key="v-pipeline">
+    <li><input type="checkbox"><span>FastAPI app + Pipecat pipeline: VAD → streaming STT → LLM → TTS, one pipeline per call</span></li>
+    <li><input type="checkbox"><span>WebRTC transport + <code>POST /webrtc/offer</code> so the website's "Talk to Vaani" button works</span></li>
+    <li><input type="checkbox"><span>Turn detection and barge-in (stop TTS within 0.5 s when the caller speaks)</span></li>
+    <li><input type="checkbox"><span>Silence handler: prompt twice, then polite goodbye</span></li>
+    <li><input type="checkbox"><span><code>voice/normalizer.py</code>: times, dates, ₹ amounts, party sizes → spoken Telugu / Hindi / en-IN</span></li>
+    <li><input type="checkbox"><span>Latency logging per turn: stt, llm_first_token, tts_first_audio, total</span></li>
+    <li><input type="checkbox"><span>Fillers while tools run ("Oka second andi, check chestunna…")</span></li>
+  </ul>
+  <div class="progress"><div data-for="v-pipeline"></div></div><div class="small" data-count="v-pipeline"></div>
+
+  <h3>8.3 Conversation flows (Pipecat Flows)</h3>
+  <ul class="tasks" data-key="v-flows">
+    <li><input type="checkbox"><span>Router node: greeting with AI disclosure, language detection, <code>route_to(service)</code>, one clarifying question if unsure</span></li>
+    <li><input type="checkbox"><span>Restaurant node: collect area → date/time → party size → search top 3 → slots → confirm → book → close</span></li>
+    <li><input type="checkbox"><span>Hospital node: collect area → need → <code>map_speciality</code> → search → doctor slots → confirm → book → close</span></li>
+    <li><input type="checkbox"><span>Global functions: <code>switch_service</code>, <code>transfer_to_human</code>, emergency redirect, <code>end_call</code></span></li>
+    <li><input type="checkbox"><span>Shared CallContext: phone (from caller ID), name, language, current service</span></li>
+    <li><input type="checkbox"><span>System prompts + 3–5 example dialogues per service per language (from <code>agent_phrases.json</code>)</span></li>
+  </ul>
+  <div class="progress"><div data-for="v-flows"></div></div><div class="small" data-count="v-flows"></div>
+
+  <h3>8.4 Tools (rules in code)</h3>
+  <ul class="tasks" data-key="v-tools">
+    <li><input type="checkbox"><span><code>resolve_area</code> with aliases and fuzzy matching; unsupported → polite reply + the 2 areas</span></li>
+    <li><input type="checkbox"><span><code>search_restaurants</code>, <code>get_restaurant_slots</code>, <code>book_table</code> (validates slot, party size, deposit rule)</span></li>
+    <li><input type="checkbox"><span><code>map_speciality</code> (incl. emergency detection), <code>search_hospitals</code>, <code>get_doctor_slots</code>, <code>book_appointment</code></span></li>
+    <li><input type="checkbox"><span><code>answer_faq</code> in the caller's language</span></li>
+    <li><input type="checkbox"><span><code>send_confirmation</code> (WhatsApp sandbox, SMS fallback) with link to <code>/b/[booking_id]</code></span></li>
+    <li><input type="checkbox"><span><code>create_payment_link</code> (test mode) for deposits and consultation fees</span></li>
+    <li><input type="checkbox"><span>Every tool emits the agreed realtime events and writes the tool timeline (section 12)</span></li>
+    <li><input type="checkbox"><span>pytest for every tool</span></li>
+  </ul>
+  <div class="progress"><div data-for="v-tools"></div></div><div class="small" data-count="v-tools"></div>
+
+  <h3>8.5 Live phone calls</h3>
+  <ul class="tasks" data-key="v-phone">
+    <li><input type="checkbox"><span><code>POST /twilio/inbound</code> returns TwiML <code>&lt;Connect&gt;&lt;Stream url="wss://…/ws/twilio"&gt;</code></span></li>
+    <li><input type="checkbox"><span><code>WS /ws/twilio</code> with Pipecat's Twilio serializer; same pipeline and flows as browser calls</span></li>
+    <li><input type="checkbox"><span>Keypad (DTMF) language fallback</span></li>
+    <li><input type="checkbox"><span>Test TTS voices and STT accuracy on real phone audio (8 kHz)</span></li>
+    <li><input type="checkbox"><span>4 simultaneous calls from the team's verified phones</span></li>
+  </ul>
+  <div class="progress"><div data-for="v-phone"></div></div><div class="small" data-count="v-phone"></div>
+
+  <h3>8.6 Post-call and load test</h3>
+  <ul class="tasks" data-key="v-post">
+    <li><input type="checkbox"><span>Post-call processor: transcript with language tags, outcome JSON, tool timeline, latency, summary → <code>calls</code> table</span></li>
+    <li><input type="checkbox"><span><code>backend/eval/eval.py</code>: replay test_calls.json through flows + tools, print accuracy by language</span></li>
+    <li><input type="checkbox"><span><code>backend/eval/load_test.py</code>: N simulated callers with recorded audio at 1 / 4 / 10 / 15</span></li>
+  </ul>
+  <div class="progress"><div data-for="v-post"></div></div><div class="small" data-count="v-post"></div>
+</section>
+
+<!-- 9 -->
+<section id="web">
+  <h2>9. Websites build <span class="tag k">Karthik</span><span class="tag a">Akshit</span><span class="tag all">anyone can help</span></h2>
+  <p class="lead">All websites are pages inside one Next.js app. They read and write the same Supabase data the AI uses, so a booking made on a call appears everywhere within about 2 seconds.</p>
+
+  <h3>9.1 Site map</h3>
+  <table>
+    <tr><th>Route</th><th>Who sees it</th><th>Purpose</th><th>Suggested start</th></tr>
+    <tr><td><code>/</code></td><td>Everyone</td><td>Landing: 3D voice orb, "Talk to Vaani" browser call, phone number, 2 services</td><td><span class="tag k">Karthik</span></td></tr>
+    <tr><td><code>/explore</code></td><td>Everyone</td><td>Directory of 20 sample businesses, filter by area and service</td><td><span class="tag k">Karthik</span></td></tr>
+    <tr><td><code>/r/[slug]</code></td><td>Public</td><td>Restaurant mini-site, e.g. <code>/r/spice-garden-jubilee-hills</code></td><td><span class="tag k">Karthik</span></td></tr>
+    <tr><td><code>/h/[slug]</code></td><td>Public</td><td>Hospital mini-site with doctors and their slots</td><td><span class="tag k">Karthik</span></td></tr>
+    <tr><td><code>/b/[booking_id]</code></td><td>Caller (WhatsApp link)</td><td>Booking status page</td><td><span class="tag k">Karthik</span></td></tr>
+    <tr><td><code>/pay/[booking_id]</code></td><td>Caller</td><td>Mock payment page (if no gateway hosted test page)</td><td><span class="tag k">Karthik</span></td></tr>
+    <tr><td><code>/partner/login</code></td><td>Staff</td><td>Pick business + demo passcode</td><td><span class="tag a">Akshit</span></td></tr>
+    <tr><td><code>/partner/r/[slug]</code></td><td>Restaurant staff</td><td>Restaurant partner portal (TV in the demo)</td><td><span class="tag a">Akshit</span></td></tr>
+    <tr><td><code>/partner/h/[slug]</code></td><td>Hospital staff</td><td>Hospital partner portal</td><td><span class="tag a">Akshit</span></td></tr>
+    <tr><td><code>/studio</code></td><td>Team, judges</td><td>Live Call Studio</td><td><span class="tag a">Akshit</span></td></tr>
+    <tr><td><code>/calls</code>, <code>/calls/[id]</code></td><td>Team</td><td>Call logs</td><td><span class="tag a">Akshit</span></td></tr>
+    <tr><td><code>/eval</code></td><td>Judges</td><td>Evaluation numbers</td><td><span class="tag a">Akshit</span></td></tr>
+  </table>
+
+  <h3>9.2 Shared foundation <span class="tag k">Karthik</span><span class="tag a">Akshit</span></h3>
+  <ul class="tasks" data-key="w-found">
+    <li><input type="checkbox"><span>Next.js + TypeScript + Tailwind + shadcn/ui setup; Vaani design tokens (colours, type, spacing), dark and light</span></li>
+    <li><input type="checkbox"><span>Supabase client + Realtime hooks: <code>useBookings(businessId, date)</code>, <code>useSlots(…)</code>, <code>useCallEvents()</code></span></li>
+    <li><input type="checkbox"><span>API client for the backend endpoints in section 12</span></li>
+    <li><input type="checkbox"><span>Per-business accent colour + monogram logo generated from the fictional name</span></li>
+    <li><input type="checkbox"><span>Dev-only "Simulate a call booking" button that calls <code>POST /api/dev/simulate-booking</code></span></li>
+    <li><input type="checkbox"><span>"Sample data for a hackathon demo" footer banner on public pages</span></li>
+  </ul>
+  <div class="progress"><div data-for="w-found"></div></div><div class="small" data-count="w-found"></div>
+
+  <h3>9.3 Landing page <span class="tag k">Karthik</span></h3>
+  <ul class="tasks" data-key="w-landing">
+    <li><input type="checkbox"><span>Hero: audio-reactive 3D voice orb (React Three Fiber), "One number. Any service. Your language."</span></li>
+    <li><input type="checkbox"><span>"Talk to Vaani" button (Pipecat client, WebRTC) + the phone number</span></li>
+    <li><input type="checkbox"><span>Two service cards (restaurants, hospitals) + "traditional vs voice-first" strip</span></li>
+    <li><input type="checkbox"><span>Languages strip (te, hi, en-IN), "works on any phone" message</span></li>
+  </ul>
+  <div class="progress"><div data-for="w-landing"></div></div><div class="small" data-count="w-landing"></div>
+
+  <h3>9.4 Restaurant mini-site <code>/r/[slug]</code> <span class="tag k">Karthik</span></h3>
+  <ul class="tasks" data-key="w-rsite">
+    <li><input type="checkbox"><span>Header: name, area, cuisine tags, veg/non-veg tag, price for two, rating badge marked "sample"</span></li>
+    <li><input type="checkbox"><span>Hero image: licence-free or generated food image (never a real restaurant's photo/logo), credited in ATTRIBUTIONS.md</span></li>
+    <li><input type="checkbox"><span>Highlight line, 3–5 popular dishes, feature icons (parking, outdoor, kids, wheelchair)</span></li>
+    <li><input type="checkbox"><span>Hours, fictional address, map pin at the area's approximate centre, FAQs</span></li>
+    <li><input type="checkbox"><span>"Book by calling Vaani" + "Talk to Vaani in browser" buttons</span></li>
+    <li><input type="checkbox"><span><b>Live availability widget:</b> day picker (today + 6), time chips green with free-table count / grey "Full"; count animates down on a booking</span></li>
+    <li><input type="checkbox"><span>Toast: "A table was just booked via Vaani"</span></li>
+  </ul>
+  <div class="progress"><div data-for="w-rsite"></div></div><div class="small" data-count="w-rsite"></div>
+
+  <h3>9.5 Hospital mini-site <code>/h/[slug]</code> <span class="tag k">Karthik</span></h3>
+  <ul class="tasks" data-key="w-hsite">
+    <li><input type="checkbox"><span>Header: name, type, area, rating badge (sample), speciality chips, facility icons</span></li>
+    <li><input type="checkbox"><span>Red banner: "Emergency? Call 108 or 112 now"</span></li>
+    <li><input type="checkbox"><span>Doctor cards: initials avatar, name, qualification, experience, languages, fee, weekly schedule</span></li>
+    <li><input type="checkbox"><span>Per-doctor slot widget (day picker + 15-min chips), booked slots turn grey live</span></li>
+    <li><input type="checkbox"><span>OPD hours, fictional address, FAQs, Call Vaani buttons</span></li>
+  </ul>
+  <div class="progress"><div data-for="w-hsite"></div></div><div class="small" data-count="w-hsite"></div>
+
+  <h3>9.6 Booking status + payments <span class="tag k">Karthik</span></h3>
+  <ul class="tasks" data-key="w-status">
+    <li><input type="checkbox"><span><code>/b/[booking_id]</code>: booking card, live status timeline (booked → payment pending → paid)</span></li>
+    <li><input type="checkbox"><span>Pay now, add to calendar (.ics), directions placeholder, cancel button</span></li>
+    <li><input type="checkbox"><span>Language toggle: Telugu / Hindi / English</span></li>
+    <li><input type="checkbox"><span>Payment: gateway test-mode hosted page, or mock <code>/pay/[booking_id]</code> with a "Pay (test)" button</span></li>
+    <li><input type="checkbox"><span>Explore page <code>/explore</code> with area and service filters</span></li>
+  </ul>
+  <div class="progress"><div data-for="w-status"></div></div><div class="small" data-count="w-status"></div>
+
+  <h3>9.7 Restaurant partner portal <code>/partner/r/[slug]</code> <span class="tag a">Akshit</span></h3>
+  <ul class="tasks" data-key="w-rportal">
+    <li><input type="checkbox"><span>Top bar: business name, date picker, green "Live" dot when Realtime connected, <b>Enable sound</b> button (browsers block autoplay until one click)</span></li>
+    <li><input type="checkbox"><span>KPI strip: today's bookings, covers, tables free now, next arrival</span></li>
+    <li><input type="checkbox"><span><b>Floor plan:</b> table cards T1…Tn with capacity, coloured free / booked / arrived for the selected time; new booking pulses</span></li>
+    <li><input type="checkbox"><span><b>Timeline view:</b> rows = tables, columns = time slots, booked blocks show name + party size</span></li>
+    <li><input type="checkbox"><span>Bookings list: time, name, party, table, source ("Vaani call · Hindi"), payment status, booking ID</span></li>
+    <li><input type="checkbox"><span><b>New booking flash:</b> card slides in with a chime: "New booking · Pranav · 6 · 20:30 · T4 · via Vaani (Hindi, 42 s)", link to transcript</span></li>
+    <li><input type="checkbox"><span>Staff actions: mark arrived, cancel, <b>block a slot</b> (AI then treats it as full), close for the day</span></li>
+    <li><input type="checkbox"><span><b>TV mode</b> <code>?tv=1</code>: large type, no nav, dark theme, auto-follows the current dinner slot</span></li>
+  </ul>
+  <div class="progress"><div data-for="w-rportal"></div></div><div class="small" data-count="w-rportal"></div>
+
+  <h3>9.8 Hospital partner portal <code>/partner/h/[slug]</code> <span class="tag a">Akshit</span></h3>
+  <ul class="tasks" data-key="w-hportal">
+    <li><input type="checkbox"><span>Top bar, Live dot, Enable sound (as above)</span></li>
+    <li><input type="checkbox"><span>KPI strip: appointments per department, fees collected, next patient</span></li>
+    <li><input type="checkbox"><span><b>Doctor calendar:</b> a column per doctor, rows = 15-min slots, booked slots show patient + payment status</span></li>
+    <li><input type="checkbox"><span>Appointment list: booked → fee pending → paid → checked in</span></li>
+    <li><input type="checkbox"><span>New appointment flash + chime</span></li>
+    <li><input type="checkbox"><span>Staff actions: check in, cancel, block a doctor's slot, doctor on leave for a day</span></li>
+    <li><input type="checkbox"><span>TV mode</span></li>
+  </ul>
+  <div class="progress"><div data-for="w-hportal"></div></div><div class="small" data-count="w-hportal"></div>
+
+  <h3>9.9 Live Call Studio, call logs, evaluation <span class="tag a">Akshit</span></h3>
+  <ul class="tasks" data-key="w-studio">
+    <li><input type="checkbox"><span><code>/studio</code>: 3D orb reacting to call audio, live transcript with TE/HI/EN tags</span></li>
+    <li><input type="checkbox"><span>Slots filling live (area ✓ date ✓ time ✓ people ✓), active agent badge (Router / Restaurant / Hospital)</span></li>
+    <li><input type="checkbox"><span><b>Agent activity timeline</b> from <code>tool_called</code> events (searched, checked slots, booked, WhatsApp sent)</span></li>
+    <li><input type="checkbox"><span>Latency meter per turn; live call tiles grid for multiple calls (ringing / talking / done)</span></li>
+    <li><input type="checkbox"><span><code>/calls</code> list + <code>/calls/[id]</code>: transcript, outcome JSON, tool timeline, latency breakdown, recording</span></li>
+    <li><input type="checkbox"><span><code>/eval</code>: accuracy by language, latency, naturalness, load-test table, cost per minute (charts with Recharts)</span></li>
+  </ul>
+  <div class="progress"><div data-for="w-studio"></div></div><div class="small" data-count="w-studio"></div>
+
+  <h3>9.10 Realtime and data rules</h3>
+  <ul>
+    <li>Subscribe to Supabase Realtime on <code>bookings</code>, <code>restaurant_slots</code>, <code>doctor_slots</code>, <code>payments</code>, <code>call_events</code>, filtered by business or call ID.</li>
+    <li>Public pages read with the anon key under read-only row-level security policies.</li>
+    <li><b>All writes</b> (AI bookings, staff actions, payments) go through the FastAPI backend with the service key, so the websites and the AI follow the same rules.</li>
+    <li>Partner portals use a simple per-business demo passcode (listed in Known limits).</li>
+    <li>Mobile-friendly mini-sites (opened from WhatsApp); desktop + TV layouts for portals. Motion via Framer Motion, nothing that distracts from the call.</li>
+  </ul>
+  <div class="ok"><b>Acceptance test:</b> a booking made on a phone call appears on the TV portal, the mini-site slot widget and the WhatsApp message within 2 seconds, and a slot blocked on the portal is refused by the AI on the next call.</div>
+</section>
+
+<!-- 10 -->
+<section id="integration">
+  <h2>10. Integration <span class="tag p">Pranav</span><span class="tag all">everyone helps test</span></h2>
+  <p class="lead">Pranav brings the voice AI, the websites and the data together in his repo, deploys them, and runs the end-to-end tests.</p>
+  <ul class="tasks" data-key="integ">
+    <li><input type="checkbox"><span>Merge websites into <code>frontend/</code>, voice into <code>backend/</code>, data into <code>data/</code>; one <code>docker-compose.yml</code></span></li>
+    <li><input type="checkbox"><span>Replace "Simulate a call booking" with real call events; keep the dev button behind a flag</span></li>
+    <li><input type="checkbox"><span>Wire the landing page "Talk to Vaani" button to the WebRTC endpoint</span></li>
+    <li><input type="checkbox"><span>Payment webhook → <code>payments</code> → booking "paid" → portal + status page + WhatsApp "payment received"</span></li>
+    <li><input type="checkbox"><span>Deploy: voice server near India (Fly.io / Render / Railway), frontend on Vercel, Twilio webhook pointed at the deployed URL</span></li>
+    <li><input type="checkbox"><span>End-to-end test: Hindi restaurant call → TV portal flash → mini-site slot drops → WhatsApp arrives (&lt; 2 s)</span></li>
+    <li><input type="checkbox"><span>End-to-end test: Telugu hospital call → fee link → test payment → "Paid" everywhere</span></li>
+    <li><input type="checkbox"><span>Staff blocks a slot on the portal → the AI refuses it on the next call</span></li>
+    <li><input type="checkbox"><span>4 simultaneous phone calls in different languages, all green in the studio</span></li>
+    <li><input type="checkbox"><span>Final <code>eval.py</code> + load test run, results into <code>EVAL.md</code> and <code>/eval</code></span></li>
+  </ul>
+  <div class="progress"><div data-for="integ"></div></div><div class="small" data-count="integ"></div>
+</section>
+
+<!-- 11 -->
+<section id="data">
+  <h2>11. Data &amp; ChatGPT prompt <span class="tag r">Rithvik (suggested)</span><span class="tag all">anyone</span></h2>
+  <p class="lead">All demo data comes from one ChatGPT prompt: 9 JSON files covering 2 areas, 10 restaurants, 10 hospitals, doctors, slots, speciality mappings, a 40-call test set and the agent's phrases.</p>
+  <ul class="tasks" data-key="data">
+    <li><input type="checkbox"><span>Replace <code>[AREA_1]</code> and <code>[AREA_2]</code> in the prompt with the chosen Hyderabad areas</span></li>
+    <li><input type="checkbox"><span>Generate all 9 files (type "next" after each)</span></li>
+    <li><input type="checkbox"><span>Native Telugu and Hindi speakers check names, phrases and agent lines</span></li>
+    <li><input type="checkbox"><span><code>validate_data.py</code>: IDs exist, booked tables exist, booked times inside schedules, 5 + 5 per area</span></li>
+    <li><input type="checkbox"><span>Convert to <code>supabase/seed.sql</code>, load it, commit JSON to <code>data/</code></span></li>
+  </ul>
+  <div class="progress"><div data-for="data"></div></div><div class="small" data-count="data"></div>
+  <h3>The prompt (copy into ChatGPT)</h3>
+<pre id="data-prompt">You are helping me create FICTIONAL demo data for a hackathon project. Read the whole brief before generating anything.
+
+=== PROJECT CONTEXT ===
+Project: "Vaani" — an AI voice assistant that answers real phone calls in Telugu, Hindi and Indian English (code-mixed speech is normal). One phone number handles two services:
+1. Restaurant table booking
+2. Hospital/doctor appointment booking
+Callers ask things like "Jubilee Hills lo manchi restaurant cheppu, repu night ki 6 mandi" or "Gachibowli mein dermatologist chahiye Saturday ko". The AI searches our database, suggests the top 3 options with ratings, reads available time slots, books, and sends a WhatsApp confirmation.
+This data powers: (a) the AI's search and booking tools, (b) a small public website per business, (c) a partner portal per business, (d) our evaluation test set.
+
+=== HARD RULES ===
+- ALL businesses, doctors and people must be FICTIONAL. Do NOT use real restaurant names, real hospital names, real chains, real brands, or real doctors. Invent original names that sound natural for Hyderabad.
+- Do NOT include real phone numbers, real emails or real street addresses. Use placeholders: phone "DEMO-R-001" / "DEMO-H-001", email none.
+- Addresses: only "&lt;fictional street/landmark name&gt;, [AREA]". Invent the landmark names.
+- Every record must include "is_sample_data": true.
+- Ratings are our own sample ratings (no reviews attributed to named people). Give one short neutral "highlight" line instead of reviews.
+- Doctors: generic qualifications only (e.g. "MBBS, MD (Dermatology)"). Mix of genders. No medical advice anywhere.
+- Areas: ONLY two areas exist in this demo: [AREA_1] and [AREA_2] (Hyderabad).
+- Output STRICT valid JSON only, one code block per file, exactly matching the schemas below. No commentary inside JSON.
+- Time slots use "day_offset" (0 = today, 1 = tomorrow ... 6) instead of real dates.
+- Times in 24h "HH:MM".
+
+=== FILE 1: areas.json ===
+For each of the 2 areas:
+{"area_id": "jubilee_hills", "name_en": "Jubilee Hills", "name_te": "&lt;Telugu script&gt;", "name_hi": "&lt;Devanagari&gt;", "aliases": ["jubilee hills", "jubili hills", "JH", "&lt;common mis-hearings, transliterations&gt;"], "lat": 0.0, "lng": 0.0, "nearby_unsupported_areas": ["&lt;4-6 real neighbouring area names&gt;"], "is_sample_data": true}
+Also add "unsupported_area_reply" in te, hi and en: polite and natural, meaning "Sorry, for this demo we only have restaurants/hospitals in [AREA_1] and [AREA_2]. Shall I check one of these?"
+
+=== FILE 2: restaurants.json ===
+Exactly 5 restaurants in [AREA_1] and 5 in [AREA_2]. Varied cuisines (Hyderabadi biryani, South Indian, North Indian, Indo-Chinese, cafe, seafood, pure veg, multi-cuisine), price ranges, ratings 3.8-4.8 (no two identical in the same area), veg/non-veg.
+{"restaurant_id": "r_jh_01", "name": "&lt;fictional&gt;", "name_spoken_te": "&lt;Telugu script&gt;", "name_spoken_hi": "&lt;Devanagari&gt;", "name_aliases": ["&lt;short forms / mis-hearings&gt;"], "area_id": "jubilee_hills", "address": "&lt;fictional landmark&gt;, Jubilee Hills", "cuisines": ["North Indian"], "food_type": "veg | non-veg | both", "rating": 4.5, "price_for_two_inr": 1200, "highlight": "&lt;one neutral line&gt;", "popular_dishes": ["&lt;3-5&gt;"], "opening_hours": {"mon": ["12:00-15:30", "19:00-23:00"], "...": "all 7 days"}, "features": {"parking": true, "outdoor_seating": false, "kids_friendly": true, "wheelchair_access": true, "live_music": false}, "booking_rules": {"max_party_size": 12, "deposit_required_for_party_size_at_least": 8, "deposit_inr": 500, "cancellation": "&lt;short rule&gt;"}, "tables": [{"table_id": "T1", "capacity": 2}, "... 8-12 tables, capacities 2/4/6/8"], "slot_length_minutes": 90, "faqs": [{"q": "...", "a_en": "...", "a_te": "...", "a_hi": "..."}], "phone": "DEMO-R-001", "is_sample_data": true}
+(4-5 FAQs per restaurant)
+
+=== FILE 3: restaurant_availability.json ===
+For each restaurant, for day_offset 0..6, for lunch starts 12:30, 13:00, 13:30, 14:00 and dinner starts 19:00, 19:30, 20:00, 20:30, 21:00, 21:30: list table_ids ALREADY BOOKED. Weekends and 20:00-21:00 busier; at least 2 slots per restaurant fully booked; at least 1 restaurant almost full tomorrow night.
+{"restaurant_id": "r_jh_01", "day_offset": 1, "time": "20:00", "booked_table_ids": ["T1", "T3"]}
+
+=== FILE 4: hospitals.json ===
+Exactly 5 hospitals/clinics in [AREA_1] and 5 in [AREA_2]. Mix of multi-speciality hospitals and clinics; ratings 3.8-4.8, varied.
+{"hospital_id": "h_gb_01", "name": "&lt;fictional&gt;", "name_spoken_te": "...", "name_spoken_hi": "...", "name_aliases": ["..."], "area_id": "gachibowli", "type": "multi-speciality hospital | clinic", "address": "&lt;fictional landmark&gt;, Gachibowli", "rating": 4.4, "highlight": "&lt;one neutral line&gt;", "specialities": ["subset of: General Medicine, Dermatology, Gynecology, Pediatrics, Orthopedics, ENT, Cardiology, Dental, Ophthalmology"], "facilities": {"emergency_24x7": true, "pharmacy": true, "lab": true, "ambulance": true, "cashless_insurance": true, "wheelchair_access": true}, "opd_hours": {"mon": "09:00-20:00", "...": "all 7 days, Sunday shorter or closed"}, "languages_spoken": ["Telugu", "Hindi", "English"], "faqs": [{"q": "...", "a_en": "...", "a_te": "...", "a_hi": "..."}], "phone": "DEMO-H-001", "is_sample_data": true}
+(clinics have 2-4 specialities; 4-5 FAQs each)
+
+=== FILE 5: doctors.json ===
+1-3 doctors per speciality each hospital offers (clinics fewer). Fictional names, mixed genders.
+{"doctor_id": "d_gb_01_derm_1", "hospital_id": "h_gb_01", "name": "Dr. &lt;fictional&gt;", "name_spoken_te": "...", "name_spoken_hi": "...", "gender": "female | male", "speciality": "Dermatology", "qualification": "MBBS, MD (Dermatology)", "experience_years": 9, "languages": ["Telugu", "English"], "consultation_fee_inr": 600, "schedule": {"mon": "10:00-13:00", "wed": "16:00-19:00", "sat": "10:00-14:00"}, "slot_length_minutes": 15, "is_sample_data": true}
+
+=== FILE 6: doctor_availability.json ===
+For each doctor, for day_offset 0..6, slot start times ALREADY BOOKED within their schedule (mornings busier, Saturday busy; at least one doctor fully booked tomorrow).
+{"doctor_id": "d_gb_01_derm_1", "day_offset": 1, "booked_times": ["10:00", "10:15", "11:30"]}
+
+=== FILE 7: speciality_mapping.json ===
+At least 60 everyday phrases → speciality, covering every speciality, in English, Telugu (script + romanised) and Hindi (script + romanised), e.g. "skin doctor", "pillala doctor", "aankh ka doctor", "pallu noppi", "periods problem", "knee pain", "chevi noppi", "fever".
+{"phrase": "skin doctor", "lang": "en", "speciality": "Dermatology"}
+Also "emergency_phrases": 30+ phrases (te/hi/en) meaning an emergency (chest pain, can't breathe, heavy bleeding, unconscious, accident, stroke signs, poisoning, suicidal thoughts). The AI must NOT book and must tell the caller to call 108 / 112 immediately. Include that exact reply line in te, hi and en.
+
+=== FILE 8: test_calls.json (evaluation set) ===
+40 caller scripts: 20 restaurant, 20 hospital. About 40% Telugu-English, 35% Hindi-English, 25% Indian English. Include: unsupported area; requested slot full; caller changes details mid-call; vague requests; party above max / deposit needed; doctor fully booked; an emergency phrase; an FAQ before booking.
+{"test_id": "T01", "service": "restaurant | hospital", "language_mix": "te-en | hi-en | en-IN", "caller_turns": ["&lt;caller lines, natural spoken style, romanised&gt;"], "expected": {"intent": "book | info | unsupported_area | emergency", "area_id": "...", "business_id": "... or null", "speciality": "... or null", "doctor_id": "... or null", "day_offset": 1, "time": "20:30", "party_size": 6, "outcome": "booked | offered_alternatives | declined_unsupported_area | redirected_emergency | answered_faq"}}
+
+=== FILE 9: agent_phrases.json ===
+Natural, warm, casual lines (how people in Hyderabad really speak, NOT textbook language), te-en, hi-en and en-IN versions, 3 variations each, with {placeholders} like {restaurant}, {time}, {party_size}, {name}:
+greeting_with_ai_disclosure, ask_area, ask_date_time, ask_party_size, ask_name, reading_top3_intro, slot_full_offer_alternatives, confirm_booking_readback, booking_done_whatsapp_sent, filler_checking, didnt_catch_that, silence_check, anything_else, goodbye, unsupported_area, emergency_redirect, transfer_to_human, never_ask_otp.
+{"key": "slot_full_offer_alternatives", "te-en": ["...", "...", "..."], "hi-en": [...], "en-IN": [...]}
+
+=== FINAL CHECK (before answering) ===
+- Every restaurant_id / hospital_id / doctor_id referenced anywhere exists.
+- Every booked table_id exists in that restaurant; every booked time is inside the doctor's schedule.
+- Exactly 5 restaurants and 5 hospitals per area.
+- No real brand, hospital, doctor, phone number or address.
+- All JSON is valid.
+Generate the files one at a time, starting with FILE 1. After each file, wait for me to type "next".</pre>
+</section>
+
+<!-- 12 -->
+<section id="contracts">
+  <h2>12. Contracts (must match in every build)</h2>
+  <p class="lead">These names and shapes are the agreement between the voice AI and the websites. Change them only with the whole team.</p>
+
+  <h3>12.1 Database tables (Supabase)</h3>
+  <table>
+    <tr><th>Table</th><th>Key columns</th></tr>
+    <tr><td>areas</td><td>area_id, name_en, name_te, name_hi, aliases[], lat, lng, nearby_unsupported_areas[]</td></tr>
+    <tr><td>restaurants</td><td>restaurant_id, slug, name, spoken names, aliases[], area_id, cuisines[], food_type, rating, price_for_two_inr, highlight, popular_dishes[], opening_hours, features, booking_rules, faqs, accent_color</td></tr>
+    <tr><td>restaurant_tables</td><td>restaurant_id, table_id, capacity</td></tr>
+    <tr><td>restaurant_slots</td><td>restaurant_id, date, time, booked_table_ids[], blocked (bool)</td></tr>
+    <tr><td>hospitals</td><td>hospital_id, slug, name, spoken names, aliases[], area_id, type, rating, specialities[], facilities, opd_hours, faqs, accent_color</td></tr>
+    <tr><td>doctors</td><td>doctor_id, hospital_id, name, gender, speciality, qualification, experience_years, languages[], consultation_fee_inr, schedule, slot_length_minutes, on_leave_dates[]</td></tr>
+    <tr><td>doctor_slots</td><td>doctor_id, date, time, status (free / booked / blocked)</td></tr>
+    <tr><td>speciality_map</td><td>phrase, lang, speciality</td></tr>
+    <tr><td>bookings</td><td>booking_id (VN-xxxx), service, business_id, doctor_id, date, time, party_size, table_id, name, phone, language, source (vaani_call / web / walk_in), status (confirmed / pending_payment / paid / arrived / checked_in / cancelled), call_id, created_at</td></tr>
+    <tr><td>payments</td><td>payment_id, booking_id, amount_inr, provider, provider_ref, status</td></tr>
+    <tr><td>calls</td><td>call_id, channel (phone / web), direction, from, started_at, ended_at, language, services_used[], transcript, outcome_json, tool_timeline, latency_json, recording_url, summary</td></tr>
+    <tr><td>call_events</td><td>call_id, ts, type, payload (drives the Live Studio)</td></tr>
+  </table>
+
+  <h3>12.2 Tools (voice AI)</h3>
+  <table>
+    <tr><th>Tool</th><th>Arguments</th><th>Returns</th></tr>
+    <tr><td><code>resolve_area</code></td><td>text</td><td>area_id, or <code>unsupported</code> + nearby list</td></tr>
+    <tr><td><code>search_restaurants</code></td><td>area_id, cuisine?, food_type?, party_size, date, time?</td><td>top 3: id, name, rating, highlight</td></tr>
+    <tr><td><code>get_restaurant_slots</code></td><td>restaurant_id, date, party_size</td><td>free times; 2 nearest if the requested one is full</td></tr>
+    <tr><td><code>book_table</code></td><td>restaurant_id, date, time, party_size, name, phone</td><td>booking_id, table_id, deposit_needed</td></tr>
+    <tr><td><code>map_speciality</code></td><td>text, lang</td><td>speciality, or <code>emergency</code></td></tr>
+    <tr><td><code>search_hospitals</code></td><td>area_id, speciality, date?</td><td>top 3: hospital, rating, doctor, next free window</td></tr>
+    <tr><td><code>get_doctor_slots</code></td><td>doctor_id, date</td><td>free times</td></tr>
+    <tr><td><code>book_appointment</code></td><td>doctor_id, date, time, name, phone</td><td>booking_id, fee_inr</td></tr>
+    <tr><td><code>answer_faq</code></td><td>business_id, question</td><td>answer in caller's language</td></tr>
+    <tr><td><code>send_confirmation</code></td><td>booking_id, channel</td><td>sent / failed</td></tr>
+    <tr><td><code>create_payment_link</code></td><td>booking_id</td><td>test-mode link</td></tr>
+    <tr><td><code>switch_service</code> · <code>transfer_to_human</code> · <code>end_call</code></td><td>reason</td><td>—</td></tr>
+  </table>
+
+  <h3>12.3 Backend endpoints (websites)</h3>
+  <table>
+    <tr><th>Endpoint</th><th>Used by</th></tr>
+    <tr><td><code>GET /api/businesses?area=&amp;type=</code></td><td>Explore, mini-sites</td></tr>
+    <tr><td><code>GET /api/restaurants/{id}/slots?date=</code></td><td>Restaurant mini-site, portal</td></tr>
+    <tr><td><code>GET /api/doctors/{id}/slots?date=</code></td><td>Hospital mini-site, portal</td></tr>
+    <tr><td><code>GET /api/bookings/{id}</code></td><td>Status page</td></tr>
+    <tr><td><code>GET /api/partners/{id}/bookings?date=</code></td><td>Partner portals</td></tr>
+    <tr><td><code>PATCH /api/bookings/{id}</code> (arrived, checked_in, cancelled)</td><td>Portals, status page</td></tr>
+    <tr><td><code>POST /api/slots/block</code></td><td>Portals</td></tr>
+    <tr><td><code>POST /api/doctors/{id}/leave</code></td><td>Hospital portal</td></tr>
+    <tr><td><code>POST /api/payments/webhook</code></td><td>Payment provider</td></tr>
+    <tr><td><code>POST /api/dev/simulate-booking</code> (dev only)</td><td>Website team testing</td></tr>
+    <tr><td><code>POST /webrtc/offer</code></td><td>"Talk to Vaani" button</td></tr>
+    <tr><td><code>POST /twilio/inbound</code>, <code>WS /ws/twilio</code></td><td>Twilio</td></tr>
+  </table>
+
+  <h3>12.4 Realtime events (<code>call_events.type</code>)</h3>
+  <p><code>call_started</code> · <code>language_detected</code> · <code>agent_switched</code> · <code>slot_filled</code> · <code>tool_called</code> · <code>booking_created</code> · <code>payment_updated</code> · <code>call_ended</code></p>
+<pre>{ "call_id": "c_123", "ts": "2026-11-23T20:12:05+05:30", "type": "tool_called",
+  "payload": { "tool": "search_restaurants", "summary": "Searched restaurants → 3 matches in Jubilee Hills (6 people, tomorrow)" } }</pre>
+
+  <h3>12.5 Outcome JSON (every call)</h3>
+<pre>{
+  "call_id": "c_123",
+  "language": ["hi", "en"],
+  "service": "restaurant",
+  "intent": "book",
+  "slots": {"area_id": "jubilee_hills", "business_id": "r_jh_01", "doctor_id": null, "speciality": null,
+            "date": "2026-11-23", "time": "20:30", "party_size": 6, "name": "Pranav"},
+  "outcome": "booked",
+  "booking_id": "VN-4821",
+  "latency_ms": {"stt": 0, "llm_first_token": 0, "tts_first_audio": 0, "turn_median": 0}
+}</pre>
+
+  <h3>12.6 Repository layout</h3>
+<pre>vaani/
+├── frontend/            # Next.js: landing, explore, mini-sites, status, partner portals, studio, logs, eval
+├── backend/
+│   ├── voice/           # pipeline, transports (twilio, webrtc), normalizer
+│   ├── flows/           # router, restaurant, hospital (Pipecat Flows)
+│   ├── tools/           # the tools above
+│   ├── postcall/        # transcript, outcome, timeline, latency, summary
+│   ├── api/             # REST routes, Twilio webhooks, payment webhook, dev simulate
+│   └── eval/            # eval.py, load_test.py
+├── data/                # the 9 JSON files
+├── supabase/            # schema.sql, seed.sql, rls.sql
+├── docker-compose.yml
+├── CLAUDE.md  README.md  LICENSE  ATTRIBUTIONS.md  AI_USAGE.md  EVAL.md
+└── .env.example</pre>
+
+  <h3>12.7 Environment variables</h3>
+<pre>TWILIO_ACCOUNT_SID=  TWILIO_AUTH_TOKEN=  TWILIO_PHONE_NUMBER=  TWILIO_WHATSAPP_FROM=
+SARVAM_API_KEY=  LLM_API_KEY=  LLM_BASE_URL=  LLM_MODEL=  TTS_API_KEY=
+SUPABASE_URL=  SUPABASE_SERVICE_KEY=  NEXT_PUBLIC_SUPABASE_URL=  NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_BACKEND_URL=  PAYMENT_KEY_ID=  PAYMENT_KEY_SECRET=  PUBLIC_WS_URL=  DEV_SIMULATE=true</pre>
+</section>
+
+<!-- 13 -->
+<section id="claudemd">
+  <h2>13. CLAUDE.md for AI coding agents</h2>
+  <p class="lead">Paste this into <code>CLAUDE.md</code> at the repo root (or any coding agent's instructions) so every teammate's agent builds to the same rules.</p>
+<pre># Vaani — project rules for coding agents
+
+## What this is
+Vaani: one phone number answered by one AI voice agent that books restaurant tables and hospital/doctor appointments in Telugu, Hindi and Indian English (code-mixed). Hackathon: Homingo Hack Days, track LLM apps, problem C2 "Voice is the interface".
+Demo data: 2 areas, 5 restaurants + 5 hospitals per area, all fictional, in /data (9 JSON files). Never invent businesses, doctors, slots or IDs.
+
+## Team areas (nobody is limited to theirs)
+- Pranav: voice AI (backend/voice, backend/flows, backend/tools, telephony) + integration
+- Karthik: public websites (landing, explore, mini-sites, status page, payments UI)
+- Akshit: partner portals, Live Call Studio, call logs, eval page
+- Rithvik: data, evaluation, demo (suggested)
+
+## Stack (do not change without team agreement)
+- Backend: Python 3.11, FastAPI, Pipecat + Pipecat Flows, Pydantic, rapidfuzz
+- Telephony: Twilio Media Streams (inbound webhook returns TwiML &lt;Connect&gt;&lt;Stream url=PUBLIC_WS_URL&gt;), WebRTC browser calls via the Pipecat transport
+- STT / LLM / TTS: providers set in .env; always streaming
+- DB: Supabase (schema in supabase/schema.sql). Realtime events drive the frontend.
+- Frontend: Next.js App Router + TypeScript, Tailwind, shadcn/ui, Framer Motion, React Three Fiber, Recharts, Zustand
+
+## Contracts (must match exactly — master plan section 12)
+- Tool names/arguments, backend endpoints, realtime event names and the outcome JSON shape are fixed.
+- All writes go through the FastAPI backend; the frontend reads with the anon key under RLS.
+
+## Hard rules
+1. The LLM talks; code decides. Availability, party limits, supported areas, booking IDs and payments are validated inside tools.
+2. Search returns at most 3 options; the agent reads at most 3 aloud.
+3. Greeting always includes the AI disclosure ("I'm Vaani, an AI assistant").
+4. Replies: 1–2 short sentences, casual Hyderabad-style code-mixing; numbers/times converted to spoken form before TTS.
+5. Stream everything; target ~1 s to first audio. Log stt, llm_first_token, tts_first_audio per turn.
+6. Barge-in on: stop TTS immediately when the caller speaks.
+7. Unsupported area → the polite "only [AREA_1] and [AREA_2]" reply from data/areas.json.
+8. Hospital: map plain words to a speciality; never diagnose; emergency phrases → "call 108 / 112 immediately", no booking.
+9. Never ask for OTP, PIN, CVV, card or account numbers.
+10. Use the caller's number from caller ID for confirmations; never ask for email.
+11. Payments only in provider test mode.
+12. All sample data stays labelled is_sample_data; no real business names, photos or logos.
+
+## Workflow
+- Small, reviewed commits; explain non-obvious code.
+- pytest for every tool; keep `python -m backend.eval.eval` runnable.
+- `docker compose up` must start everything from a clean clone.
+- Update README, EVAL.md and AI_USAGE.md when behaviour changes.</pre>
+</section>
+
+<!-- 14 -->
+<section id="demo">
+  <h2>14. Demo setup &amp; script</h2>
+  <p class="lead">The demo proves "it got the thing done" by showing four things within about 2 seconds: the call, the AI's actions, the business receiving the booking, and the caller getting the confirmation.</p>
+  <table>
+    <tr><th>Screen</th><th>Shows</th></tr>
+    <tr><td>TV</td><td>Partner portal in TV mode for the business being booked (e.g. the restaurant floor plan); the new booking flashes with a chime</td></tr>
+    <tr><td>Laptop / projector</td><td>Live Call Studio: transcript with language tags, slots filling, agent activity timeline, latency meter</td></tr>
+    <tr><td>Caller's phone (QuickTime mirror for iPhone, scrcpy for Android)</td><td>The live call, then the WhatsApp confirmation card</td></tr>
+    <tr><td>Optional 4th panel</td><td>The restaurant's mini-site: the booked slot's count drops live</td></tr>
+  </table>
+  <h3>Agent activity timeline (example)</h3>
+<pre>11:42:03  Language: Hindi · Service: Restaurant
+11:42:05  Searched restaurants → 3 matches in Jubilee Hills (6 people, tomorrow)
+11:42:14  Checked Spice Garden slots → 19:30, 20:30 free (20:00 full)
+11:42:26  Booked table T4 · 20:30 · ID VN-4821
+11:42:27  WhatsApp confirmation sent · Spice Garden notified</pre>
+  <h3>WhatsApp confirmation</h3>
+<pre>✅ Booking confirmed — Vaani
+Spice Garden, Jubilee Hills
+Sat 23 Nov · 8:30 PM · 6 people · Table T4
+Booking ID: VN-4821
+Status &amp; directions: &lt;site&gt;/b/VN-4821
+(Sample booking for a hackathon demo)</pre>
+  <h3>Demo video (~3 minutes, recorded with OBS)</h3>
+  <ol>
+    <li><b>Hook (15 s):</b> "One number. Any service. Your language."</li>
+    <li><b>Hindi restaurant booking (50 s):</b> search, slot full, alternative, booked, TV flashes, WhatsApp arrives.</li>
+    <li><b>Telugu hospital appointment (50 s):</b> "skin doctor" → Dermatology, doctor slots, booked, test-mode fee paid, status "Paid".</li>
+    <li><b>Unsupported area + emergency (20 s):</b> polite "only these two areas"; chest-pain phrase → "call 108 / 112".</li>
+    <li><b>Rush hour (25 s):</b> 4 phones call at once in different languages, 4 tiles turn green; load-test table at 5 / 10 / 15.</li>
+    <li><b>Evidence (20 s):</b> evaluation page: accuracy, latency, naturalness, cost.</li>
+    <li><b>Vision (10 s):</b> any business joins as a partner; new services are new playbooks.</li>
+  </ol>
+  <div class="note"><b>Before going live:</b> click "Enable sound" on the TV portal · all 4 phones + spare verified on Twilio and joined to the WhatsApp sandbox · backup video ready · invite a judge to call and book while the TV shows the portal.</div>
+</section>
+
+<!-- 15 -->
+<section id="eval">
+  <h2>15. Evaluation</h2>
+  <p class="lead">Every number goes into <code>EVAL.md</code> and the <code>/eval</code> page, split by Telugu, Hindi and Indian English.</p>
+  <table>
+    <tr><th>Metric</th><th>How measured</th><th>Target</th></tr>
+    <tr><td>Booking accuracy</td><td>40 scripted calls: area, business, doctor, date, time, party size all correct</td><td>≥ 85–90%</td></tr>
+    <tr><td>Search relevance</td><td>Expected business in the top 3</td><td>≥ 90%</td></tr>
+    <tr><td>Unsupported area</td><td>Polite decline + offer of the 2 areas</td><td>100%</td></tr>
+    <tr><td>Emergency handling</td><td>Redirect to 108/112, no booking</td><td>100%</td></tr>
+    <tr><td>Slot-full handling</td><td>Offers the 2 nearest free slots</td><td>≥ 90%</td></tr>
+    <tr><td>Reply speed</td><td>Median and slowest time to first audio (phone and web)</td><td>~1 s / &lt; 2 s</td></tr>
+    <tr><td>Interruption</td><td>Time to stop speaking</td><td>&lt; 0.5 s</td></tr>
+    <tr><td>Naturalness</td><td>Blind 1–5 rating by 10 people over real calls</td><td>≥ 4</td></tr>
+    <tr><td>Concurrency</td><td>Load test at 1 / 4 / 10 / 15 callers: median reply time, success %</td><td>Report</td></tr>
+    <tr><td>Cost</td><td>₹ per call minute (telephony + STT + LLM + TTS)</td><td>Report</td></tr>
+    <tr><td>Live sync</td><td>Call booking → portal + mini-site + WhatsApp</td><td>&lt; 2 s</td></tr>
+  </table>
+</section>
+
+<!-- 16 -->
+<section id="limits">
+  <h2>16. Costs &amp; known limits</h2>
+  <table>
+    <tr><th>Item</th><th>Limit / cost</th><th>What we do</th></tr>
+    <tr><td>Twilio trial credit</td><td>$15 preloaded</td><td>Covers number, calls, WhatsApp/SMS for the demo</td></tr>
+    <tr><td>Twilio trial voice</td><td>75 minutes total, 10 minutes per call, max 5 calls at once</td><td>Daily testing via browser calls; phone minutes for the demo</td></tr>
+    <tr><td>Twilio trial numbers</td><td>Calls/messages only to verified numbers (up to 5); short trial message first</td><td>Verify 4 team phones + 1 spare</td></tr>
+    <tr><td>Twilio after upgrading</td><td>New individual accounts start at 3 concurrent calls; more needs an approved business profile</td><td>Stay on trial; describe scaling in README</td></tr>
+    <tr><td>Calling from India</td><td>Trial number is a US number (international call)</td><td>AI calls us, or browser calls</td></tr>
+    <tr><td>SMS to India</td><td>Paid per message; may be filtered under India's DLT rules</td><td>WhatsApp sandbox first, SMS fallback, status page always</td></tr>
+    <tr><td>Featherless LLM</td><td>Basic $10/mo: 2 concurrent, ≤15B models · Premium $25/mo: 4 concurrent</td><td>Dev only; higher-concurrency API for 4+ calls</td></tr>
+    <tr><td>STT / TTS</td><td>Usage-priced, rate-limited</td><td>Check at signup; measure ₹/min</td></tr>
+    <tr><td>ChatGPT Plus, Claude Pro</td><td>No API access for the app</td><td>Build tools only</td></tr>
+  </table>
+  <h3>Known limits (copy into README)</h3>
+  <ul>
+    <li>Twilio trial: US number, verified callers only, max 5 calls at once, 75 minutes</li>
+    <li>4 real phone calls at once in the demo; 10–15 shown via browser calls and the load test</li>
+    <li>2 areas and 20 fictional businesses; production needs partner onboarding or booking-system integrations</li>
+    <li>Telugu, Hindi, Indian English tested most deeply; Tamil, Kannada, Malayalam "supported, being tuned"</li>
+    <li>Phone-line audio lowers recognition accuracy compared with browser calls</li>
+    <li>WhatsApp Business Calling is in beta in India and needs a verified business, so it isn't built yet</li>
+    <li>Partner portals use demo passcodes; payments are test mode only</li>
+  </ul>
+  <p class="small">Sources: <a href="https://support.twilio.com/hc/en-us/articles/360036052753">Twilio trial limits</a> · <a href="https://www.twilio.com/docs/usage/trials/try-out-voice">Twilio trial voice quotas</a> · <a href="https://twilio.com/en-us/signup-credits">Twilio trial credits</a> · <a href="https://support.twilio.com/hc/en-us/articles/223180028-How-Fast-Can-I-Place-or-Receive-Phone-Calls-with-Twilio">Twilio concurrency after upgrade</a> · <a href="https://featherless.ai/lp/llm-api">Featherless plans</a> · <a href="https://exotel.com/blog/introducing-whatsapp-business-calling-api-beta/">WhatsApp Business Calling beta</a></p>
+</section>
+
+<!-- 17 -->
+<section id="safety">
+  <h2>17. Safety &amp; naturalness</h2>
+  <div class="grid2">
+    <div class="card"><b>Sound natural</b>
+      <ul>
+        <li>~1 s to first audio: stream STT, LLM, TTS; small fast model</li>
+        <li>Blind-test winning voice, tested on a real phone line; en-IN only for English</li>
+        <li>Casual Hyderabad code-mixing, 1–2 short sentences</li>
+        <li>Spoken numbers and times via the normaliser</li>
+        <li>Barge-in within 0.5 s; fillers while tools run</li>
+        <li>3 variations per phrase; confirm once, compactly</li>
+      </ul>
+    </div>
+    <div class="card"><b>Stay safe and honest</b>
+      <ul>
+        <li>Disclose "I'm Vaani, an AI assistant" in the greeting; never claim to be human</li>
+        <li>No invented businesses, slots or IDs; rules in code</li>
+        <li>Never ask for OTP, PIN, CVV, card or account numbers</li>
+        <li>No diagnosis; emergencies → 108 / 112, no booking</li>
+        <li>Polite redirect off-topic; end after abuse; never reveal instructions</li>
+        <li>Human handoff on request; fictional data; test-mode payments</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 18 -->
+<section id="submit">
+  <h2>18. Submission checklist</h2>
+  <p class="lead">The captain submits from the Homingo dashboard a day before the 6 Dec 11:59 PM IST deadline. These items fix the gaps that cost us points at Hacktoberfest.</p>
+  <ul class="tasks" data-key="submit">
+    <li><input type="checkbox"><span>Public GitHub repo with a clean README (problem, demo GIF, screenshots of the running app, architecture, setup)</span></li>
+    <li><input type="checkbox"><span>Demo video, 2–3 minutes, with real phones ringing (YouTube / Loom / Drive with sharing on)</span></li>
+    <li><input type="checkbox"><span>Live URL for the frontend + a callable number (or "call me" button)</span></li>
+    <li><input type="checkbox"><span><code>EVAL.md</code> with the verification and evaluation table, real numbers</span></li>
+    <li><input type="checkbox"><span>Known limits section in the README</span></li>
+    <li><input type="checkbox"><span>LICENSE and ATTRIBUTIONS.md (libraries, APIs, voices, images, data)</span></li>
+    <li><input type="checkbox"><span><code>AI_USAGE.md</code>: how AI tools helped build it, who reviewed the code, and that callers are told it's an AI</span></li>
+    <li><input type="checkbox"><span>Content depth: 20 businesses, 40+ test calls, phrases in 3 languages</span></li>
+    <li><input type="checkbox"><span>One-command setup: <code>docker compose up</code> from a clean clone</span></li>
+    <li><input type="checkbox"><span>Pitch deck: problem → traditional vs voice-first → live demo → how it works → evidence → safety → company potential</span></li>
+    <li><input type="checkbox"><span>All 4 teammates star Keploy on GitHub and verify on the dashboard</span></li>
+    <li><input type="checkbox"><span>Optional: Olostep post on LinkedIn or X if we use Olostep</span></li>
+  </ul>
+  <div class="progress"><div data-for="submit"></div></div><div class="small" data-count="submit"></div>
+</section>
+
+<p class="small" style="margin-top:28px">Checkbox ticks are saved in this browser only. Share progress in the group chat or the repo's issues.</p>
+</main>
+</div>
+
+<script>
+(function(){
+  // Persist checkboxes per list (browser-local only)
+  function load(key){ try{ return JSON.parse(localStorage.getItem('vaani:'+key)||'[]'); }catch(e){ return []; } }
+  function save(key,val){ try{ localStorage.setItem('vaani:'+key, JSON.stringify(val)); }catch(e){} }
+  document.querySelectorAll('ul.tasks').forEach(function(ul){
+    var key = ul.getAttribute('data-key'); var boxes = ul.querySelectorAll('input[type=checkbox]');
+    var state = load(key);
+    function render(){
+      var done = 0;
+      boxes.forEach(function(b,i){ b.closest('li').classList.toggle('done', b.checked); if(b.checked) done++; });
+      var bar = document.querySelector('[data-for="'+key+'"]'); var cnt = document.querySelector('[data-count="'+key+'"]');
+      if(bar) bar.style.width = (boxes.length ? Math.round(done*100/boxes.length) : 0) + '%';
+      if(cnt) cnt.textContent = done + ' of ' + boxes.length + ' done';
+    }
+    boxes.forEach(function(b,i){
+      b.checked = !!state[i];
+      b.addEventListener('change', function(){ var s = []; boxes.forEach(function(x){ s.push(x.checked); }); save(key, s); render(); });
+    });
+    render();
+  });
+  // Copy buttons on code blocks
+  document.querySelectorAll('pre').forEach(function(pre){
+    var btn = document.createElement('button'); btn.className = 'copy'; btn.textContent = 'Copy';
+    btn.addEventListener('click', function(){
+      var text = pre.innerText.replace(/^Copy\n?/, '').replace(/Copied!\n?$/, '');
+      var clone = pre.cloneNode(true); clone.querySelectorAll('.copy').forEach(function(c){ c.remove(); }); text = clone.innerText;
+      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function(){ btn.textContent = 'Copied!'; setTimeout(function(){ btn.textContent = 'Copy'; }, 1400); }).catch(function(){
+        var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+        try{ document.execCommand('copy'); btn.textContent = 'Copied!'; }catch(e){ btn.textContent = 'Select & copy'; }
+        ta.remove(); setTimeout(function(){ btn.textContent = 'Copy'; }, 1400);
+      });
+    });
+    pre.appendChild(btn);
+  });
+  // Highlight current section in nav
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.side a'));
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){ links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href') === '#'+en.target.id); }); } });
+  }, {rootMargin:'-30% 0px -60% 0px'});
+  document.querySelectorAll('main section').forEach(function(s){ obs.observe(s); });
+})();
+</script>
+</body>
+</html>

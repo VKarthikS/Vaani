@@ -1,0 +1,97 @@
+# Vaani — one number, any service, your language
+
+> Call one phone number, speak Telugu, Hindi or Indian English (mixed is fine), and an AI books your restaurant table or doctor's appointment. No app, no internet, no typing.
+
+**Homingo Hack Days, Edition 01 · Track: LLM apps · Problem C2 "Voice is the interface" · Team PARK**
+
+> 🚧 Work in progress — Phase 0 (repo and docs). Screenshots, demo video and live URL land in later phases.
+
+## The problem
+
+Most Indians would rather talk than type, but every service is still built for typing.
+
+- **Language barriers** — apps and IVRs are mostly English or formal Hindi.
+- **Limited digital literacy** — forms, sign-ups, OTP flows.
+- **Complicated booking apps** — many screens and filters.
+- **Can't or won't type** — elderly callers, busy workers, non-Latin-script users.
+- **Accessibility limits** — low vision, low literacy, keypad phones.
+- **Poor customer service** — "press 1, press 2", hold times, limited hours.
+
+## The solution
+
+Vaani is **one phone number answered by one AI voice agent**. It understands code-mixed Telugu, Hindi and Indian English, finds the top 3 options, reads live free slots, books, and sends a WhatsApp confirmation. The business sees the booking flash on its partner portal (even on a TV) within about 2 seconds, and its public mini-site updates live.
+
+- Two services: **restaurant tables** and **hospital/doctor appointments**
+- Two demo areas in Hyderabad (Jubilee Hills, Gachibowli), 20 fictional businesses
+- Always discloses it's an AI; emergencies are redirected to **108 / 112**; never asks for OTPs or card numbers
+- The LLM talks, **code decides**: availability, limits and booking IDs are enforced in tools and the database
+
+## Architecture
+
+```
+Phone (Twilio Media Streams)      Browser ("Talk to Vaani", WebRTC)
+            \                         /
+   Voice server: FastAPI + Pipecat (VAD → STT → LLM → normaliser → TTS)
+   Pipecat Flows: Router → Restaurant agent | Hospital agent
+   Tools (rules in code) → Supabase Postgres + Realtime
+            /                 |                    \
+   Next.js websites     WhatsApp / SMS        Payments (test mode)
+```
+
+Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Contracts: [docs/CONTRACTS.md](docs/CONTRACTS.md) · Call flow: [docs/CALL_FLOW.md](docs/CALL_FLOW.md) · Websites: [docs/WEBSITES.md](docs/WEBSITES.md) · Full plan: [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md)
+
+## Setup
+
+Requirements: macOS/Linux, Docker Desktop, Python 3.11+, [uv](https://docs.astral.sh/uv/), Node 20+.
+
+```bash
+git clone <repo-url> vaani && cd vaani
+cp .env.example .env        # fill in keys as phases need them
+uv sync                     # Python deps
+uv run pytest               # tests
+```
+
+Database, voice server and website setup steps are added as each phase lands (Phase 1: local Supabase; Phase 7: one-command `docker compose up`).
+
+## Evaluation
+
+Measured, not just demoed — see [EVAL.md](EVAL.md) (booking accuracy by language, top-3 relevance, emergency and unsupported-area handling, latency, barge-in, naturalness, live sync, cost per minute).
+
+## Screenshots
+
+_Coming in Phase 8._
+
+## Known limits
+
+- Twilio trial: US number, verified callers only, max 5 calls at once, 75 minutes total, 10 minutes per call.
+- 4 real phone calls at once in the demo; 10–15 concurrent shown via browser calls and the load test.
+- 2 areas and 20 fictional businesses; production needs partner onboarding or booking-system integrations.
+- Telugu, Hindi and Indian English are tested most; Tamil, Kannada and Malayalam are "supported, being tuned".
+- Phone-line audio lowers speech-recognition accuracy compared with browser calls.
+- WhatsApp Business Calling is not built (beta in India, needs a verified business).
+- SMS to India may be filtered (DLT); WhatsApp sandbox needs each phone to join first.
+- Partner portals use demo passcodes; payments are test mode only.
+- All businesses, doctors, ratings and bookings are fictional sample data.
+
+More: [docs/LIMITS.md](docs/LIMITS.md).
+
+## Submission checklist
+
+- [ ] Public repo, clean README with real screenshots + demo GIF
+- [ ] 2–3 min demo video with real phones ringing
+- [ ] Live frontend URL + callable number (or "call me" button)
+- [ ] EVAL.md with real numbers (verification matrix)
+- [x] Known limits section
+- [x] LICENSE + ATTRIBUTIONS.md (final pass in Phase 8)
+- [x] AI_USAGE.md (final pass in Phase 8)
+- [ ] Content depth: 20 businesses, 40+ test calls, phrases in 3 languages
+- [ ] One-command setup: `docker compose up`
+- [ ] Pitch deck
+
+## Team PARK
+
+Pranav (voice AI + integration) · Karthik (public websites + payments) · Akshit (partner portals, studio, logs, eval) · Rithvik (data, evaluation, demo). See [docs/TEAM.md](docs/TEAM.md).
+
+## Licence
+
+MIT — see [LICENSE](LICENSE). Third-party credits in [ATTRIBUTIONS.md](ATTRIBUTIONS.md); how we used AI tools in [AI_USAGE.md](AI_USAGE.md).

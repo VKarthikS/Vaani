@@ -1,0 +1,247 @@
+# Vaani — Contracts
+
+These names and shapes are the agreement between the voice AI, the backend and the websites. **Change them only with the whole team**, and update this file, `CLAUDE.md` and the code in the same commit.
+
+Conventions used everywhere:
+
+- Dates are `YYYY-MM-DD` in **IST (Asia/Kolkata)**; times are 24h `HH:MM` strings in JSON and `time` in Postgres.
+- Timestamps are ISO 8601 with offset, e.g. `2026-11-23T20:12:05+05:30`.
+- Languages: `te`, `hi`, `en` (Indian English). Language mixes in data/eval: `te-en`, `hi-en`, `en-IN`.
+- IDs: areas `jubilee_hills`; restaurants `r_jh_01`; hospitals `h_gb_01`; doctors `d_gb_01_derm_1`; tables `T1…Tn`; bookings `VN-1234` (4 digits); calls `c_<uuid12>`; payments `pay_<uuid12>`.
+- Demo areas are set by `DEMO_AREA_1` / `DEMO_AREA_2` (default `jubilee_hills`, `gachibowli`).
+
+---
+
+## 1. Database tables (Supabase Postgres)
+
+Source of truth: `supabase/schema.sql` (Phase 1). `[]` = Postgres array, `{}` = `jsonb`.
+
+### areas
+| column | type | notes |
+|---|---|---|
+| area_id | text PK | `jubilee_hills` |
+| name_en, name_te, name_hi | text | te in Telugu script, hi in Devanagari |
+| aliases | text[] | lower-case spellings + common mis-hearings, used by `resolve_area` fuzzy match |
+| lat, lng | double precision | approximate area centre (map pin) |
+| nearby_unsupported_areas | text[] | real neighbouring area names; recognised so we reply politely |
+| unsupported_area_reply | {} | `{"te": "...", "hi": "...", "en": "..."}` |
+| is_sample_data | boolean | always true |
+
+### restaurants
+| column | type | notes |
+|---|---|---|
+| restaurant_id | text PK | `r_jh_01` |
+| slug | text unique | `spice-garden-jubilee-hills` (derived from name + area by seed if absent) |
+| name, name_spoken_te, name_spoken_hi | text | |
+| name_aliases | text[] | short forms / mis-hearings |
+| area_id | text FK → areas | |
+| address | text | `<fictional landmark>, Jubilee Hills` |
+| cuisines | text[] | |
+| food_type | text | `veg` \| `non-veg` \| `both` |
+| rating | numeric(2,1) | 3.8–4.8, labelled "sample" in UI |
+| price_for_two_inr | integer | |
+| highlight | text | one neutral line |
+| popular_dishes | text[] | 3–5 |
+| opening_hours | {} | `{"mon": ["12:00-15:30","19:00-23:00"], …, "sun": [...]}`; `[]` = closed |
+| features | {} | `{"parking","outdoor_seating","kids_friendly","wheelchair_access","live_music"}` booleans |
+| booking_rules | {} | `{"max_party_size": 12, "deposit_required_for_party_size_at_least": 8, "deposit_inr": 500, "cancellation": "..."}` |
+| slot_length_minutes | integer | how long a table is held (90) |
+| faqs | {} | `[{"q","a_en","a_te","a_hi"}]` |
+| phone | text | placeholder `DEMO-R-001` |
+| accent_color | text | hex, derived from name by seed if absent |
+| is_sample_data | boolean | |
+
+### restaurant_tables
+`(restaurant_id FK, table_id)` PK, `capacity integer` (2/4/6/8).
+
+### restaurant_slots
+| column | type | notes |
+|---|---|---|
+| restaurant_id, date, time | PK | one row per bookable start time per day |
+| booked_table_ids | text[] | tables already taken for that start time |
+| blocked | boolean | staff blocked it → AI must treat it as full |
+
+Bookable start times (fixed for the demo): lunch `12:30 13:00 13:30 14:00`, dinner `19:00 19:30 20:00 20:30 21:00 21:30`, only on days and inside the hours the restaurant is open.
+
+### hospitals
+`hospital_id` PK (`h_gb_01`), `slug` unique, `name`, `name_spoken_te`, `name_spoken_hi`, `name_aliases[]`, `area_id` FK, `type` (`multi-speciality hospital` \| `clinic`), `address`, `rating`, `highlight`, `specialities[]`, `facilities {}` (`emergency_24x7, pharmacy, lab, ambulance, cashless_insurance, wheelchair_access`), `opd_hours {}` (`{"mon": "09:00-20:00", "sun": "" }`, empty = closed), `languages_spoken[]`, `faqs {}`, `phone`, `accent_color`, `is_sample_data`.
+
+Specialities (closed list): General Medicine, Dermatology, Gynecology, Pediatrics, Orthopedics, ENT, Cardiology, Dental, Ophthalmology.
+
+### doctors
+`doctor_id` PK, `hospital_id` FK, `name`, `name_spoken_te`, `name_spoken_hi`, `gender` (`female`\|`male`), `speciality`, `qualification`, `experience_years`, `languages[]`, `consultation_fee_inr`, `schedule {}` (`{"mon": "10:00-13:00", "sat": "10:00-14:00"}`, days absent = not working), `slot_length_minutes` (15), `on_leave_dates date[]`, `is_sample_data`.
+
+### doctor_slots
+`(doctor_id, date, time)` PK, `status` = `free` \| `booked` \| `blocked`. One row per slot inside the schedule for the next 7 days.
+
+### speciality_map
+`id` serial PK, `phrase`, `lang` (`te`\|`hi`\|`en`), `speciality` (null for emergencies), `is_emergency boolean`.
+
+### bookings
+| column | type | notes |
+|---|---|---|
+| booking_id | text PK | `VN-\d{4}`, generated in the DB booking function |
+| service | text | `restaurant` \| `hospital` |
+| business_id | text | restaurant_id or hospital_id |
+| doctor_id | text FK null | hospital only |
+| date, time | date, time | |
+| party_size | integer null | restaurant only |
+| table_id | text null | restaurant only |
+| name | text | caller's name |
+| phone | text | caller ID (E.164); **never exposed to anon** |
+| language | text | `te` \| `hi` \| `en` |
+| source | text | `vaani_call` \| `web` \| `walk_in` |
+| status | text | `confirmed` \| `pending_payment` \| `paid` \| `arrived` \| `checked_in` \| `cancelled` |
+| amount_due_inr | integer null | deposit or consultation fee |
+| call_id | text null | links to the call that made it |
+| created_at, updated_at | timestamptz | |
+
+Double-booking is impossible: partial unique indexes on `(business_id, date, time, table_id)` and `(doctor_id, date, time)` where `status <> 'cancelled'`, and bookings are only created through the Postgres functions `book_table(...)` / `book_appointment(...)`, which lock the slot row.
+
+Anon (frontend) reads go through the view **`bookings_public`** (every column except `phone`; name shown as first name + initial).
+
+### payments
+`payment_id` PK, `booking_id` FK, `amount_inr`, `provider` (`razorpay`\|`stripe`\|`mock`), `provider_ref`, `status` (`created`\|`paid`\|`failed`\|`refunded`), `created_at`, `updated_at`.
+
+### calls
+`call_id` PK, `channel` (`phone`\|`web`), `direction` (`inbound`\|`outbound`), `from_number`, `started_at`, `ended_at`, `language text[]`, `services_used text[]`, `transcript {}` (`[{"ts","speaker":"caller|vaani","lang","text"}]`), `outcome_json {}` (§5), `tool_timeline {}` (`[{"ts","tool","args","result","summary","ms"}]`), `latency_json {}` (per-turn list + medians), `recording_url`, `summary` (2 lines).
+
+The row is inserted at `call_started` and completed by the post-call processor.
+
+### call_events
+`id` bigserial PK, `call_id` FK → calls, `ts` timestamptz, `type` (§4), `payload {}`.
+
+### Row-level security
+- RLS on for every table. The **service role** (FastAPI only) writes.
+- **anon** can `select`: areas, restaurants, restaurant_tables, restaurant_slots, hospitals, doctors, doctor_slots, speciality_map, payments (no provider secrets stored), bookings_public, calls and call_events (demo dashboards; phone numbers masked in `from_number` before insert).
+- Realtime publication `supabase_realtime`: bookings, restaurant_slots, doctor_slots, payments, calls, call_events.
+
+---
+
+## 2. Tools (voice AI)
+
+Every tool: validates in code, never trusts the LLM's arguments, appends `{ts, tool, args, result, summary, ms}` to the call's tool timeline and emits a `tool_called` event with a human-readable `summary`. Errors come back as `{"ok": false, "error": "<CODE>", "message": "..."}` so the flow can speak a natural reply.
+
+| Tool | Args | Returns (ok) | Rules enforced in code |
+|---|---|---|---|
+| `resolve_area` | `text` | `{"area_id"}` or `{"unsupported": true, "heard": "...", "supported": [area_id,…], "reply": {te,hi,en}}` | fuzzy match (rapidfuzz) on name + aliases; known nearby areas → unsupported |
+| `search_restaurants` | `area_id, cuisine?, food_type?, party_size, date, time?` | `{"results": [{restaurant_id, name, rating, highlight, cuisines, food_type}]}` (≤3, by rating) | area supported; party ≤ max_party_size; open that day; if `time` given, at least one table fits |
+| `get_restaurant_slots` | `restaurant_id, date, party_size, time?` | `{"free": ["19:30","20:30"], "requested_full": true, "nearest": ["19:30","20:30"]}` | blocked = full; a table with capacity ≥ party must be free; `nearest` = 2 closest free times when requested is full |
+| `book_table` | `restaurant_id, date, time, party_size, name, phone` | `{"booking_id", "table_id", "deposit_needed": bool, "deposit_inr"}` | atomic via `book_table()`; errors `SLOT_FULL`, `BLOCKED`, `PARTY_TOO_LARGE`, `CLOSED`, `INVALID_TIME` |
+| `map_speciality` | `text, lang` | `{"speciality"}` or `{"emergency": true, "reply": "..."}` or `{"unknown": true}` | emergency phrases checked **first**; fuzzy match on speciality_map |
+| `search_hospitals` | `area_id, speciality, date?` | `{"results": [{hospital_id, name, rating, doctor_id, doctor_name, next_free: {date, time}}]}` (≤3) | area supported; only doctors with that speciality, not on leave, with a free slot in 7 days |
+| `get_doctor_slots` | `doctor_id, date` | `{"free": ["10:00","10:15"], "on_leave": false, "fully_booked": false, "next_free_date"}` | leave dates, blocked slots |
+| `book_appointment` | `doctor_id, date, time, name, phone` | `{"booking_id", "fee_inr"}` | atomic via `book_appointment()`; errors `SLOT_TAKEN`, `BLOCKED`, `DOCTOR_ON_LEAVE`, `INVALID_TIME` |
+| `answer_faq` | `business_id, question` | `{"answer", "lang"}` or `{"unknown": true}` | answers only from that business's FAQs (fuzzy match); never invents |
+| `send_confirmation` | `booking_id, channel` (`whatsapp`\|`sms`) | `{"status": "sent"\|"failed", "channel"}` | uses the booking's phone (caller ID); WhatsApp first, SMS fallback |
+| `create_payment_link` | `booking_id` | `{"url", "amount_inr", "mode": "test"}` | test mode only; amount from booking, not from the LLM |
+| `switch_service` | `reason` | — | carries name/phone/language over |
+| `transfer_to_human` | `reason` | — | speaks handoff/callback line, logs a callback request |
+| `end_call` | `reason` | — | goodbye line, ends the pipeline |
+
+---
+
+## 3. Backend endpoints (FastAPI)
+
+All writes go through these endpoints with the Supabase service key. JSON in/out.
+
+| Method & path | Purpose | Body / query | Response |
+|---|---|---|---|
+| `GET /health` | liveness | — | `{"ok": true, "version"}` |
+| `GET /api/businesses?area=&type=` | explore, mini-sites | `type` = `restaurant`\|`hospital` | `[business]` |
+| `GET /api/restaurants/{id}/slots?date=` | mini-site widget, portal | | `[{time, free_tables, total_tables, blocked}]` |
+| `GET /api/doctors/{id}/slots?date=` | hospital widget, portal | | `[{time, status}]` |
+| `GET /api/bookings/{id}` | status page | | booking (phone masked) + payment |
+| `GET /api/partners/{id}/bookings?date=` | partner portals | header `X-Partner-Passcode` | `[booking]` |
+| `PATCH /api/bookings/{id}` | portal / status page | `{"status": "arrived"\|"checked_in"\|"cancelled"}` | booking |
+| `POST /api/slots/block` | portal | `{"business_id", "doctor_id"?, "date", "time"?, "all_day"?: bool, "blocked": bool}` | `{"ok": true}` |
+| `POST /api/doctors/{id}/leave` | hospital portal | `{"date", "on_leave": bool}` | `{"ok": true}` |
+| `POST /api/payments/webhook` | payment provider | provider payload; signature checked with `PAYMENT_WEBHOOK_SECRET` | `{"ok": true}` |
+| `POST /api/dev/simulate-booking` | website testing; only if `DEV_SIMULATE=true` | `{"business_id", "date"?, "time"?}` | booking + emits the same events as a call |
+| `POST /webrtc/offer` | "Talk to Vaani" button | SDP offer | SDP answer |
+| `POST /twilio/inbound` | Twilio voice webhook | Twilio form | TwiML `<Connect><Stream url="{PUBLIC_WS_URL}/ws/twilio"/></Connect>` |
+| `WS /ws/twilio` | Twilio Media Streams | — | Pipecat Twilio serializer |
+
+---
+
+## 4. Realtime events (`call_events.type`)
+
+```json
+{"call_id":"c_123","ts":"2026-11-23T20:12:05+05:30","type":"tool_called",
+ "payload":{"tool":"search_restaurants","summary":"Searched restaurants → 3 matches in Jubilee Hills (6 people, tomorrow)"}}
+```
+
+| type | payload |
+|---|---|
+| `call_started` | `{channel, from_masked}` |
+| `language_detected` | `{lang, confidence, via: "speech"\|"dtmf"}` |
+| `agent_switched` | `{from, to}` (`router`\|`restaurant`\|`hospital`) |
+| `slot_filled` | `{slot, value}` (area_id, date, time, party_size, speciality, name, business_id, doctor_id) |
+| `tool_called` | `{tool, summary, ms, ok}` |
+| `booking_created` | `{booking_id, service, business_id, date, time, party_size?, table_id?, doctor_id?, language}` |
+| `payment_updated` | `{booking_id, payment_id, status}` |
+| `call_ended` | `{outcome, duration_s, booking_id?}` |
+| `transcript` | `{speaker, lang, text, final: bool}` — live transcript lines for the Studio |
+| `latency` | `{turn, stt, llm_first_token, tts_first_audio, turn_total}` (ms) |
+
+`transcript` and `latency` are additions for the Live Call Studio; the first eight are the fixed list.
+
+---
+
+## 5. Outcome JSON (every call)
+
+```json
+{"call_id":"c_123","language":["hi","en"],"service":"restaurant","intent":"book",
+ "slots":{"area_id":"jubilee_hills","business_id":"r_jh_01","doctor_id":null,"speciality":null,"date":"2026-11-23","time":"20:30","party_size":6,"name":"Pranav"},
+ "outcome":"booked","booking_id":"VN-4821",
+ "latency_ms":{"stt":0,"llm_first_token":0,"tts_first_audio":0,"turn_median":0}}
+```
+
+- `service`: `restaurant` \| `hospital` \| `null`
+- `intent`: `book` \| `info` \| `unsupported_area` \| `emergency` \| `human` \| `other`
+- `outcome`: `booked` \| `offered_alternatives` \| `declined_unsupported_area` \| `redirected_emergency` \| `answered_faq` \| `transferred` \| `abandoned` \| `no_availability`
+
+---
+
+## 6. Environment variables
+
+See `.env.example` (kept in sync with this list).
+
+| Variable | Used by | Notes |
+|---|---|---|
+| TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER, TWILIO_WHATSAPP_FROM | backend | trial account; WhatsApp sandbox sender |
+| SARVAM_API_KEY | backend | STT (+ TTS when `TTS_PROVIDER=sarvam`) |
+| STT_PROVIDER | backend | `sarvam` (default) \| `deepgram` \| `whisper` |
+| LLM_API_KEY, LLM_BASE_URL, LLM_MODEL | backend | any OpenAI-compatible API |
+| TTS_PROVIDER, TTS_API_KEY | backend | `sarvam` (default) \| `elevenlabs` \| `azure` \| `google` |
+| SUPABASE_URL, SUPABASE_SERVICE_KEY | backend, scripts | service key never reaches the browser |
+| SUPABASE_DB_URL | scripts | Postgres connection string for `db_apply.py` and DB tests |
+| NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY | frontend | read-only under RLS |
+| NEXT_PUBLIC_BACKEND_URL | frontend | FastAPI base URL |
+| PAYMENT_PROVIDER, PAYMENT_KEY_ID, PAYMENT_KEY_SECRET, PAYMENT_WEBHOOK_SECRET | backend | `mock` \| `razorpay` \| `stripe`, test mode only |
+| PUBLIC_BASE_URL | backend | site URL used in WhatsApp links (`<site>/b/VN-4821`) |
+| PUBLIC_WS_URL | backend | public `wss://` base for Twilio (ngrok locally) |
+| DEMO_AREA_1, DEMO_AREA_2 | backend, scripts | default `jubilee_hills`, `gachibowli` |
+| DEV_SIMULATE | backend, frontend | enables `/api/dev/simulate-booking` |
+
+---
+
+## 7. Data files (`data/`)
+
+Nine JSON files, all records `"is_sample_data": true`. Generated by a teammate with `docs/DATA_PROMPT.md`; placeholder versions ship in the repo. `scripts/validate_data.py` must pass and `scripts/seed.py` must load them with no code changes.
+
+| File | Shape | Maps to |
+|---|---|---|
+| `areas.json` | `[area]` (§1 areas) | areas |
+| `restaurants.json` | `[restaurant]` with embedded `"tables": [{table_id, capacity}]` | restaurants + restaurant_tables |
+| `restaurant_availability.json` | `[{restaurant_id, day_offset, time, booked_table_ids[], blocked?}]` — **only slots that are already (partly) booked or blocked**; every other bookable time is free | restaurant_slots |
+| `hospitals.json` | `[hospital]` | hospitals |
+| `doctors.json` | `[doctor]` with optional `on_leave_day_offsets: [int]` | doctors |
+| `doctor_availability.json` | `[{doctor_id, day_offset, booked_times[], blocked_times?[]}]` — only exceptions; other slots in the schedule are free | doctor_slots |
+
+**Weekday rule.** `day_offset` lands on a different weekday depending on the seed date, so restaurants are open every day and every doctor referenced in `doctor_availability.json` or `test_calls.json` works all 7 days with the same hours. `validate_data.py` enforces this; `seed.py` skips (and reports) any exception that doesn't fall inside that day's hours.
+| `speciality_mapping.json` | `{"phrases": [{phrase, lang, speciality}], "emergency_phrases": [{phrase, lang}], "emergency_reply": {te, hi, en}}` | speciality_map |
+| `test_calls.json` | `[{test_id, service, language_mix, scenario, caller_turns[], expected{intent, area_id, business_id, speciality, doctor_id, day_offset, time, party_size, outcome}}]` | eval only |
+| `agent_phrases.json` | `[{key, "te-en": [3], "hi-en": [3], "en-IN": [3]}]` with `{placeholders}` | loaded by flows |
+
+`day_offset` 0–6 is relative to "today" in IST at seed time; `seed.py` turns it into real dates so the demo always has current slots.
