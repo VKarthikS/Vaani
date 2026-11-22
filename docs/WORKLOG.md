@@ -6,9 +6,9 @@ Every agent session adds an entry here (rules and template: `AGENTS.md` §5). **
 
 | Phase | Status | Owner | Where |
 |---|---|---|---|
-| 0 Repo + docs | ✅ done | Pranav | `main` @ `9035817` |
-| 1 Data + database | ✅ done (local Supabase check pending — Docker Desktop wasn't starting) | Pranav | `main` @ `353798d` |
-| 2 Tools + API | ✅ done | Pranav | `main` @ `b368b14` |
+| 0 Repo + docs | ✅ done | Pranav | `main` @ `d33536a` |
+| 1 Data + database | ✅ done (local Supabase check pending — Docker Desktop wasn't starting) | Pranav | `main` @ `9a2f0b8` |
+| 2 Tools + API | ✅ done | Pranav | `main` @ `7343662` |
 | 3 Text-mode agent + eval | 🟡 started, handed off (see entry below) | open — Rithvik or Pranav | `main` (WIP modules) |
 | 4 Voice over browser | ⬜ not started | open | — |
 | 5 Websites | 🟡 in progress outside this repo | Akshit, Karthik | `docs/FRONTEND_PROMPT.md` |
@@ -40,16 +40,16 @@ Baseline on `main`: `uv run pytest -q` → **131 passed** · ruff ✓ · mypy �
 **Next steps:** follow "Phase 3" in `docs/PHASE_PROMPTS.md`. It lists the remaining steps in order: fix `parse_time`, context + nodes + guards + session runner, prompts per language, CLI, eval, tests, docs.
 
 ### 2026-11-22 12:54 IST · Phase 2 · Pranav via Claude Code · done
-**Branch:** `main` · **Commits:** `b368b14`, `40b89d7`
+**Branch:** `main` · **Commits:** `7343662`, `0771d00`
 **Done:** all 14 tools (`backend/tools/`, one runner `run_tool` with Pydantic args, coded errors, tool timeline, `tool_called` events); FastAPI app (`backend/api/`): businesses, slots, booking status, partner bookings with derived passcodes, PATCH status, slot blocks, doctor leave, HMAC-signed payment webhook, mock pay, dev simulate-booking; async psycopg pool (`backend/store.py`); mock messenger with the WhatsApp card; `scripts/partner_passcodes.py`. Added `docs/FRONTEND_PROMPT.md` plus a frontend ↔ backend differences table in `docs/WEBSITES.md`.
 **Tests / checks:** 131 passed (83 new) · ruff ✓ · mypy ✓ · uvicorn smoke boot ✓ (health + simulated booking produced the WhatsApp card).
 **Decisions:** backend talks to Postgres directly (`SUPABASE_DB_URL`) for latency + transactions; catalogue text from `data/`, live state from the DB; fuzzy emergency matching uses same-length word windows (fixed "घुटने में दर्द" knee pain matching chest pain).
 
 ### 2026-11-22 12:38 IST · Phase 1 · Pranav via Claude Code · done
-**Branch:** `main` · **Commits:** `353798d`
+**Branch:** `main` · **Commits:** `9a2f0b8`
 **Done:** `supabase/schema.sql` (tables, partial unique indexes, atomic `book_table` / `book_appointment` / `cancel_booking`, `vaani_today()`), `supabase/rls.sql` (anon read-only, phone columns hidden via column grants, Realtime publication), placeholder data (9 files), `backend/catalog/` (models, loader, validation, schedules, evergreen seed SQL), scripts `validate_data.py`, `make_seed_sql.py`, `seed.py`, `db_apply.py`, `supabase/config.toml`.
 **Tests / checks:** 48 passed incl. two 20-caller races (exactly 1 booking each).
 **Blockers:** Docker Desktop VM wouldn't start, so RLS/Realtime are not yet verified on local Supabase (`supabase start` → `db_apply.py`).
 
 ### 2026-11-22 12:15 IST · Phase 0 · Pranav via Claude Code · done
-**Commits:** `9035817` — repo skeleton, all docs, CLAUDE.md, README, LICENSE, ATTRIBUTIONS, AI_USAGE, EVAL skeleton, `.env.example`, compose skeleton.
+**Commits:** `d33536a` — repo skeleton, all docs, CLAUDE.md, README, LICENSE, ATTRIBUTIONS, AI_USAGE, EVAL skeleton, `.env.example`, compose skeleton.
