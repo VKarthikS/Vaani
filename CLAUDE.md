@@ -58,3 +58,5 @@ Full plan: `docs/MASTER_PLAN.md`. Call stages: `docs/CALL_FLOW.md`. Pages: `docs
 - DB (wipes + reloads `SUPABASE_DB_URL`): `uv run python scripts/db_apply.py` (schema + RLS + seed) · `uv run python scripts/seed.py` (fresh dates)
 - DB tests start a temporary Postgres (or use `VAANI_TEST_DB_URL`); they must never point at a dev or demo database.
 - Bookings only via `book_table()` / `book_appointment()` / `cancel_booking()` (see `docs/CONTRACTS.md` §1); data shape lives in `backend/catalog/models.py`.
+- API: `uv run uvicorn backend.api.app:app --reload --port 8000` · passcodes: `uv run python scripts/partner_passcodes.py`
+- Tools: always call through `backend.tools.run_tool(ctx, name, args)` (timeline + events); never write bookings or slots from flows directly. A new tool = Pydantic `Args` model + `@tool(...)` + tests + a row in CONTRACTS §2.

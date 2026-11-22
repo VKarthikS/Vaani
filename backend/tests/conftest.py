@@ -91,3 +91,100 @@ def pg_url() -> Iterator[str]:
             [str(bin_dir / "pg_ctl"), "-D", str(data), "-m", "immediate", "stop"], capture_output=True, env=env
         )
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+# ---------------------------------------------------------------------------
+# Phase 2: seeded database, async store, tool context, API client
+# ---------------------------------------------------------------------------
+
+from collections.abc import AsyncIterator  # noqa: E402
+from datetime import date, timedelta  # noqa: E402
+
+import httpx  # noqa: E402
+import psycopg  # noqa: E402
+
+from backend.api.app import create_app  # noqa: E402
+from backend.api.deps import Services  # noqa: E402
+from backend.clock import today_ist  # noqa: E402
+from backend.config import Settings  # noqa: E402
+from backend.db import SQL_FILES, SUPABASE_DIR, run_sql  # noqa: E402
+from backend.messaging import MockMessenger  # noqa: E402
+from backend.store import Store  # noqa: E402
+from backend.tools import ToolContext  # noqa: E402
+
+CALLER = "+919876543210"
+WEBHOOK_SECRET = "whsec_test_only"
+SEED_SQL = (SUPABASE_DIR / "seed.sql").read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="session")
+def seeded_url(pg_url: str) -> str:
+    """schema → rls → seed applied once, exactly like scripts/db_apply.py."""
+    with psycopg.connect(pg_url, autocommit=True) as conn:
+        for name in SQL_FILES:
+            run_sql(conn, (SUPABASE_DIR / name).read_text(encoding="utf-8"))
+    return pg_url
+
+
+@pytest.fixture
+def reseed(seeded_url: str) -> None:
+    """Fresh catalogue + no bookings before each test that uses it."""
+    with psycopg.connect(seeded_url, autocommit=True) as conn:
+        run_sql(conn, SEED_SQL)
+
+
+@pytest.fixture
+def settings(seeded_url: str) -> Settings:
+    # _env_file=None: tests never read the developer's .env
+    return Settings(
+        _env_file=None,
+        supabase_db_url=seeded_url,
+        payment_webhook_secret=WEBHOOK_SECRET,  # type: ignore[call-arg]
+        dev_simulate=True,
+        public_base_url="https://vaani.test",
+    )
+
+
+@pytest.fixture(scope="session")
+async def store(seeded_url: str) -> AsyncIterator[Store]:
+    s = Store(seeded_url, max_size=25)
+    await s.open()
+    yield s
+    await s.close()
+
+
+@pytest.fixture
+def messenger() -> MockMessenger:
+    return MockMessenger()
+
+
+@pytest.fixture
+async def ctx(
+    reseed: None, store: Store, catalog: Catalog, settings: Settings, messenger: MockMessenger
+) -> ToolContext:
+    call_id = await store.start_call("phone", CALLER)
+    return ToolContext(
+        store=store,
+        catalog=catalog,
+        settings=settings,
+        messenger=messenger,
+        call_id=call_id,
+        phone=CALLER,
+        language="hi",
+    )
+
+
+@pytest.fixture
+def services(store: Store, catalog: Catalog, settings: Settings, messenger: MockMessenger) -> Services:
+    return Services(settings=settings, store=store, catalog=catalog, messenger=messenger)
+
+
+@pytest.fixture
+async def client(reseed: None, services: Services) -> AsyncIterator[httpx.AsyncClient]:
+    app = create_app(services=services)
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as c:
+        yield c
+
+
+def day(offset: int) -> date:
+    return today_ist() + timedelta(days=offset)

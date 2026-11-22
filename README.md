@@ -4,7 +4,7 @@
 
 **Homingo Hack Days, Edition 01 · Track: LLM apps · Problem C2 "Voice is the interface" · Team PARK**
 
-> 🚧 Work in progress — Phase 1 done (database, atomic booking, demo data). Screenshots, demo video and live URL land in later phases.
+> 🚧 Work in progress — Phase 2 done (all voice-AI tools + REST API on top of the database). Screenshots, demo video and live URL land in later phases.
 
 ## The problem
 
@@ -65,6 +65,16 @@ uv run python scripts/db_apply.py         # schema.sql → rls.sql → seed.sql 
 
 Demo data is **placeholder** until the team runs [docs/DATA_PROMPT.md](docs/DATA_PROMPT.md); drop the new files into `data/` and the same commands load them.
 
+### Backend API
+
+```bash
+uv run uvicorn backend.api.app:app --reload --port 8000   # needs SUPABASE_DB_URL in .env
+curl localhost:8000/health
+uv run python scripts/partner_passcodes.py                  # demo passcodes for the partner portals
+```
+
+With `DEV_SIMULATE=true`, `POST /api/dev/simulate-booking {"business_id": "r_jh_01"}` makes a fake call book through the real tools, so the websites get the same live events as a phone call. Endpoints and tools: [docs/CONTRACTS.md](docs/CONTRACTS.md) §2–3.
+
 Voice server and website setup steps are added as later phases land (Phase 7: one-command `docker compose up`).
 
 ## Evaluation
@@ -84,7 +94,7 @@ _Coming in Phase 8._
 - Phone-line audio lowers speech-recognition accuracy compared with browser calls.
 - WhatsApp Business Calling is not built (beta in India, needs a verified business).
 - SMS to India may be filtered (DLT); WhatsApp sandbox needs each phone to join first.
-- Partner portals use demo passcodes; payments are test mode only.
+- Partner portals use derived demo passcodes, and anyone with a booking ID can cancel it from the status page; payments are test mode only.
 - All businesses, doctors, ratings and bookings are fictional sample data.
 
 More: [docs/LIMITS.md](docs/LIMITS.md).

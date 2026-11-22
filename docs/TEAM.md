@@ -37,9 +37,9 @@ Everyone owns a starting area, but nobody is limited to it. Pick up anything, ti
 - [x] Tests: validation, seed expansion, booking rules, 20-caller race
 
 ### Phase 2 — Tools and API
-- [ ] All tools in `CONTRACTS.md` §2 + pytest for every rule
-- [ ] All endpoints in §3, dev simulate, payment webhook with signature check
-- [ ] Events into `call_events`
+- [x] All tools in `CONTRACTS.md` §2 + pytest for every rule
+- [x] All website endpoints in §3, dev simulate, mock pay, payment webhook with signature check (voice/Twilio endpoints come in Phases 4 and 6)
+- [x] Events into `call_events`
 
 ### Phase 3 — Text-mode agent
 - [ ] Router / restaurant / hospital flows + `python -m backend.flows.cli`

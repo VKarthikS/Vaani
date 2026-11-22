@@ -27,6 +27,8 @@ Cost per call minute (telephony + STT + LLM + TTS) is measured and reported in `
 - Phone-line audio (8 kHz) lowers speech-recognition accuracy compared with browser calls.
 - WhatsApp Business Calling is in beta in India and needs a verified business, so it isn't built yet.
 - SMS to India may be filtered (DLT); WhatsApp sandbox requires each phone to join first.
-- Partner portals use per-business demo passcodes, not real auth.
+- Partner portals use per-business demo passcodes (derived from `PARTNER_PASSCODE_SECRET`), not real auth.
+- Anyone with a booking ID can cancel it from the status page (no caller login); IDs are 4 digits.
+- Restaurant seatings are independent per start time and one party uses one table (no table joining).
 - Payments are test mode only.
 - All businesses, doctors, ratings and bookings are fictional sample data.

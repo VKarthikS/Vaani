@@ -46,5 +46,8 @@ _STT / LLM / TTS candidates compared on latency, accuracy and cost go here._
 | No double booking under concurrency | `backend/tests/test_db_booking.py`: 20 concurrent callers on one doctor slot and on a restaurant's only 12-seat table | ✅ exactly 1 success, 19 `SLOT_TAKEN` / `SLOT_FULL` (Phase 1, Postgres 15) |
 | Booking rules enforced in the database | same file: slot full, blocked, party limit, doctor leave, past time, unknown business, cancel frees slot | ✅ (Phase 1) |
 | Data integrity | `scripts/validate_data.py` + 15 mutation tests | ✅ placeholder set: 0 errors, 0 warnings |
+| Tools enforce every rule | `backend/tests/test_tools_*.py`: slot full → 2 nearest, party limit, deposits, unsupported area, blocked slots, doctor leave, fully booked, past times, ≤ 3 results, 10-way race through the tool runner | ✅ (Phase 2) |
+| Emergency phrases never book | every one of the 46 emergency phrases → `emergency`; every one of the 105 speciality phrases → its speciality, none flagged as emergency | ✅ (Phase 2) |
+| Blocked slot refused (tool level) | `test_api.py::test_blocked_slot_is_refused_by_the_ai`: portal block → `book_table` returns `BLOCKED` | ✅ (Phase 2); full voice E2E in Phase 7 |
 | Blocked slot refused by the AI | E2E test (Phase 7) | TBD |
 | Booking visible everywhere < 2 s | E2E test (Phase 7) | TBD |

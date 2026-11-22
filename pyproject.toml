@@ -7,9 +7,14 @@ license = { text = "MIT" }
 requires-python = ">=3.11"
 # Runtime deps are added phase by phase (Phase 1: data + DB, Phase 2: API, Phase 4: Pipecat).
 dependencies = [
+    "fastapi>=0.165.0",
+    "psycopg-pool>=3.3.3",
     "psycopg[binary]>=3.3.9",
     "pydantic>=2.14.4",
+    "pydantic-settings>=2.16.3",
     "python-dotenv>=1.2.4",
+    "rapidfuzz>=3.14.6",
+    "uvicorn[standard]>=0.54.0",
 ]
 
 [dependency-groups]
@@ -17,6 +22,8 @@ dev = [
     "pytest>=8",
     "ruff>=0.6",
     "mypy>=1.11",
+    "pytest-asyncio>=1.5.0",
+    "httpx>=0.28.1",
 ]
 
 [tool.uv]
@@ -24,6 +31,9 @@ package = false
 
 [tool.pytest.ini_options]
 testpaths = ["backend/tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
 markers = [
     "db: needs Postgres (VAANI_TEST_DB_URL or local initdb/pg_ctl); skipped otherwise",
 ]

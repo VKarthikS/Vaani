@@ -131,47 +131,54 @@ The row is inserted at `call_started` and completed by the post-call processor.
 
 ## 2. Tools (voice AI)
 
-Every tool: validates in code, never trusts the LLM's arguments, appends `{ts, tool, args, result, summary, ms}` to the call's tool timeline and emits a `tool_called` event with a human-readable `summary`. Errors come back as `{"ok": false, "error": "<CODE>", "message": "..."}` so the flow can speak a natural reply.
+Implemented in `backend/tools/` (registry: `backend.tools.REGISTRY`; argument models double as the LLM's JSON schemas). Every call goes through `run_tool(ctx, name, args)`, which validates the args, runs the tool, appends `{ts, tool, args, result, summary, ms}` to the call's tool timeline and emits a `tool_called` event `{tool, summary, ms, ok}` when the context has a `call_id`.
+
+Every result has `"ok"`. Errors look like `{"ok": false, "error": "<CODE>", "message": "...", ...extra}` so the flow can speak a natural reply. Dates are `YYYY-MM-DD`, times `HH:MM`; dates must fall in today … today + 6 (IST), else `DATE_OUT_OF_RANGE` (with `earliest` / `latest`). Common codes: `INVALID_ARGS`, `UNKNOWN_TOOL`, `UNSUPPORTED_AREA` (with `supported`), `UNKNOWN_BUSINESS`, `UNKNOWN_DOCTOR`, `UNKNOWN_BOOKING`, `MISSING_DETAILS`.
+
+`phone` is never asked from the caller: booking tools take it from the call context (caller ID). The LLM may omit it.
 
 | Tool | Args | Returns (ok) | Rules enforced in code |
 |---|---|---|---|
-| `resolve_area` | `text` | `{"area_id"}` or `{"unsupported": true, "heard": "...", "supported": [area_id,…], "reply": {te,hi,en}}` | fuzzy match (rapidfuzz) on name + aliases; known nearby areas → unsupported |
-| `search_restaurants` | `area_id, cuisine?, food_type?, party_size, date, time?` | `{"results": [{restaurant_id, name, rating, highlight, cuisines, food_type}]}` (≤3, by rating) | area supported; party ≤ max_party_size; open that day; if `time` given, at least one table fits |
-| `get_restaurant_slots` | `restaurant_id, date, party_size, time?` | `{"free": ["19:30","20:30"], "requested_full": true, "nearest": ["19:30","20:30"]}` | blocked = full; a table with capacity ≥ party must be free; `nearest` = 2 closest free times when requested is full |
-| `book_table` | `restaurant_id, date, time, party_size, name, phone` | `{"booking_id", "table_id", "deposit_needed": bool, "deposit_inr"}` | atomic via `book_table()`; errors `SLOT_FULL`, `BLOCKED`, `PARTY_TOO_LARGE`, `CLOSED`, `INVALID_TIME` |
-| `map_speciality` | `text, lang` | `{"speciality"}` or `{"emergency": true, "reply": "..."}` or `{"unknown": true}` | emergency phrases checked **first**; fuzzy match on speciality_map |
-| `search_hospitals` | `area_id, speciality, date?` | `{"results": [{hospital_id, name, rating, doctor_id, doctor_name, next_free: {date, time}}]}` (≤3) | area supported; only doctors with that speciality, not on leave, with a free slot in 7 days |
-| `get_doctor_slots` | `doctor_id, date` | `{"free": ["10:00","10:15"], "on_leave": false, "fully_booked": false, "next_free_date"}` | leave dates, blocked slots |
-| `book_appointment` | `doctor_id, date, time, name, phone` | `{"booking_id", "fee_inr"}` | atomic via `book_appointment()`; errors `SLOT_TAKEN`, `BLOCKED`, `DOCTOR_ON_LEAVE`, `INVALID_TIME` |
-| `answer_faq` | `business_id, question` | `{"answer", "lang"}` or `{"unknown": true}` | answers only from that business's FAQs (fuzzy match); never invents |
-| `send_confirmation` | `booking_id, channel` (`whatsapp`\|`sms`) | `{"status": "sent"\|"failed", "channel"}` | uses the booking's phone (caller ID); WhatsApp first, SMS fallback |
-| `create_payment_link` | `booking_id` | `{"url", "amount_inr", "mode": "test"}` | test mode only; amount from booking, not from the LLM |
-| `switch_service` | `reason` | — | carries name/phone/language over |
-| `transfer_to_human` | `reason` | — | speaks handoff/callback line, logs a callback request |
-| `end_call` | `reason` | — | goodbye line, ends the pipeline |
+| `resolve_area` | `text` | `{"area_id", "name"}` or `{"unsupported": true, "heard", "supported": [area_id,…], "reply": {te,hi,en}}` | exact alias/name match (any script) inside the utterance first; known nearby areas → unsupported; then rapidfuzz WRatio ≥ 85 on aliases of 4+ chars |
+| `search_restaurants` | `area_id, party_size, date, time?, cuisine?, food_type?` (`veg`\|`non-veg`) | `{"results": [{restaurant_id, name, rating, highlight, cuisines, food_type, free_times}]}` — ≤ 3, by rating; empty results add `reason` (`party_too_large`\|`no_availability`) | demo area only; party ≤ max_party_size; a free fitting table on that date (and at `time` if given); `veg` includes `both`; cuisine matches cuisines, dishes or highlight |
+| `get_restaurant_slots` | `restaurant_id, date, party_size, time?` | `{"free": [...], "requested", "requested_full", "nearest": [2 times]}` | blocked = full; a table with capacity ≥ party must be free; past times today hidden; `nearest` only when the requested time is full |
+| `book_table` | `restaurant_id, date, time, party_size, name, phone?` | `{"booking_id", "table_id", "deposit_needed", "deposit_inr"}`; emits `booking_created` | atomic `book_table()`; `SLOT_FULL`, `BLOCKED`, `PARTY_TOO_LARGE` (with `max_party_size`), `INVALID_TIME` |
+| `map_speciality` | `text, lang?` | `{"speciality", "matched"}` or `{"emergency": true, "matched", "reply"}` or `{"unknown": true, "specialities"}` | emergency phrases checked **first** (exact, then ≥ 90 on same-length word windows); then longest exact phrase / department name; then fuzzy ≥ 88 |
+| `search_hospitals` | `area_id, speciality, date?` | `{"results": [{hospital_id, name, rating, highlight, doctor_id, doctor_name, fee_inr, next_free: {date, time}, window}]}` — ≤ 3, by rating | demo area only; speciality from the closed list; per hospital the doctor with the earliest free slot from `date` (default today), skipping leave days, blocks and past times |
+| `get_doctor_slots` | `doctor_id, date` | `{"free", "on_leave", "fully_booked", "next_free_date", "next_free_time"?}` | leave dates (live from the DB), blocked slots, past times |
+| `book_appointment` | `doctor_id, date, time, name, phone?` | `{"booking_id", "fee_inr", "hospital_id"}`; emits `booking_created` | atomic `book_appointment()`; `SLOT_TAKEN`, `BLOCKED`, `DOCTOR_ON_LEAVE`, `INVALID_TIME` |
+| `answer_faq` | `business_id, question, lang?` | `{"answer", "lang", "question_matched"}` or `{"unknown": true}` | only that business's FAQs: multilingual topic keywords + token-set similarity; never invents |
+| `send_confirmation` | `booking_id, channel?` (`whatsapp` default \| `sms`) | `{"status": "sent"\|"failed", "channel", "message"?}` | sends to the booking's phone (caller ID); WhatsApp → SMS fallback; card format in WEBSITES.md, with the test pay link when a deposit/fee is due |
+| `create_payment_link` | `booking_id` | `{"url", "amount_inr", "payment_id", "mode": "test"}` | amount from the booking, never from the LLM; one open payment per booking; `NOTHING_TO_PAY`, `ALREADY_PAID` |
+| `switch_service` | `to` (`restaurant`\|`hospital`), `reason?` | `{"service"}`; emits `agent_switched` | name/phone/language carry over (CallContext, Phase 3) |
+| `transfer_to_human` | `reason?` | `{"callback_requested": true}` | logged on the timeline for a callback |
+| `end_call` | `reason?` | `{"end": true}` | the flow speaks goodbye and ends the pipeline |
 
 ---
 
 ## 3. Backend endpoints (FastAPI)
 
-All writes go through these endpoints with the Supabase service key. JSON in/out.
+`uv run uvicorn backend.api.app:app --port 8000`. Writes go through these endpoints; the backend connects to Postgres directly with `SUPABASE_DB_URL` (the owner role, which bypasses RLS like the service key). Errors are `{"detail": {"error": "<CODE>", "message"}}` with 400 / 401 / 403 / 404 / 409 / 501 / 503.
+
+Partner actions need header **`X-Partner-Passcode`**: a per-business 6-digit demo code derived from `PARTNER_PASSCODE_SECRET` (`uv run python scripts/partner_passcodes.py` prints them).
 
 | Method & path | Purpose | Body / query | Response |
 |---|---|---|---|
-| `GET /health` | liveness | — | `{"ok": true, "version"}` |
-| `GET /api/businesses?area=&type=` | explore, mini-sites | `type` = `restaurant`\|`hospital` | `[business]` |
-| `GET /api/restaurants/{id}/slots?date=` | mini-site widget, portal | | `[{time, free_tables, total_tables, blocked}]` |
-| `GET /api/doctors/{id}/slots?date=` | hospital widget, portal | | `[{time, status}]` |
-| `GET /api/bookings/{id}` | status page | | booking (phone masked) + payment |
-| `GET /api/partners/{id}/bookings?date=` | partner portals | header `X-Partner-Passcode` | `[booking]` |
-| `PATCH /api/bookings/{id}` | portal / status page | `{"status": "arrived"\|"checked_in"\|"cancelled"}` | booking |
-| `POST /api/slots/block` | portal | `{"business_id", "doctor_id"?, "date", "time"?, "all_day"?: bool, "blocked": bool}` | `{"ok": true}` |
-| `POST /api/doctors/{id}/leave` | hospital portal | `{"date", "on_leave": bool}` | `{"ok": true}` |
-| `POST /api/payments/webhook` | payment provider | provider payload; signature checked with `PAYMENT_WEBHOOK_SECRET` | `{"ok": true}` |
-| `POST /api/dev/simulate-booking` | website testing; only if `DEV_SIMULATE=true` | `{"business_id", "date"?, "time"?}` | booking + emits the same events as a call |
-| `POST /webrtc/offer` | "Talk to Vaani" button | SDP offer | SDP answer |
-| `POST /twilio/inbound` | Twilio voice webhook | Twilio form | TwiML `<Connect><Stream url="{PUBLIC_WS_URL}/ws/twilio"/></Connect>` |
-| `WS /ws/twilio` | Twilio Media Streams | — | Pipecat Twilio serializer |
+| `GET /health` | liveness | — | `{"ok", "version", "db"}` |
+| `GET /api/businesses?area=&type=` | explore, mini-sites | `type` = `restaurant`\|`hospital` | `[{type, id, ...catalogue fields}]` (hospitals include `doctors`); no phone |
+| `GET /api/restaurants/{id}/slots?date=` | mini-site widget, portal | | `{restaurant_id, date, in_window, slots: [{time, free_tables, total_tables, blocked, past}]}` |
+| `GET /api/doctors/{id}/slots?date=` | hospital widget, portal | | `{doctor_id, date, on_leave, slots: [{time, status, past}]}` |
+| `GET /api/bookings/{id}` | status page | | booking without `phone` + `phone_masked` + `payments: [...]` |
+| `GET /api/partners/{id}/bookings?date=` | partner portals | passcode | `[booking + payment_status]` (phone masked) |
+| `PATCH /api/bookings/{id}` | portal / status page | `{"status": "arrived"\|"checked_in"\|"cancelled"}` | booking. `arrived` (restaurants) / `checked_in` (hospitals) need the passcode; `cancelled` frees the slot and needs none (status page; demo limit) |
+| `POST /api/slots/block` | portal | `{"business_id", "doctor_id"?, "date", "time"?, "all_day"?, "blocked": true}` + passcode | `{"ok", "updated"}`. Restaurant: slot(s) blocked → the AI treats them as full. Hospital: needs `doctor_id`; booked slots are never touched |
+| `POST /api/doctors/{id}/leave` | hospital portal | `{"date", "on_leave": bool}` + passcode | `{"ok", "on_leave_dates"}` |
+| `POST /api/payments/webhook` | payment provider | raw JSON; `mock`: `{"event": "payment.paid", "payment_id", "provider_ref"?}` signed `X-Vaani-Signature: hex(HMAC-SHA256(PAYMENT_WEBHOOK_SECRET, body))` | `{"ok", "booking_status", "already_paid"}`; idempotent; emits `payment_updated` for call bookings. 401 bad signature, 503 no secret, 501 for razorpay/stripe until Phase 6 |
+| `POST /api/payments/{booking_id}/mock-pay` | "Pay (test)" button on `/pay/[booking_id]` | — | same path as a paid webhook; only when `PAYMENT_PROVIDER=mock` |
+| `POST /api/dev/simulate-booking` | website testing; only if `DEV_SIMULATE=true` (else 404) | `{"business_id", "doctor_id"?, "date"?, "time"?, "party_size"?, "name"?, "language"?}` | `{call_id, booking, confirmation, timeline}`; books through the real tools, so it emits exactly a call's events |
+| `POST /webrtc/offer` | "Talk to Vaani" button | SDP offer | SDP answer (Phase 4) |
+| `POST /twilio/inbound` | Twilio voice webhook | Twilio form | TwiML `<Connect><Stream url="{PUBLIC_WS_URL}/ws/twilio"/></Connect>` (Phase 6) |
+| `WS /ws/twilio` | Twilio Media Streams | — | Pipecat Twilio serializer (Phase 6) |
 
 ---
 
@@ -184,9 +191,9 @@ All writes go through these endpoints with the Supabase service key. JSON in/out
 
 | type | payload |
 |---|---|
-| `call_started` | `{channel, from_masked}` |
-| `language_detected` | `{lang, confidence, via: "speech"\|"dtmf"}` |
-| `agent_switched` | `{from, to}` (`router`\|`restaurant`\|`hospital`) |
+| `call_started` | `{channel, from_masked, simulated?}` |
+| `language_detected` | `{lang, confidence, via: "speech"\|"dtmf"\|"simulated"}` |
+| `agent_switched` | `{from?, to, reason?}` (`router`\|`restaurant`\|`hospital`) |
 | `slot_filled` | `{slot, value}` (area_id, date, time, party_size, speciality, name, business_id, doctor_id) |
 | `tool_called` | `{tool, summary, ms, ok}` |
 | `booking_created` | `{booking_id, service, business_id, date, time, party_size?, table_id?, doctor_id?, language}` |
@@ -225,8 +232,9 @@ See `.env.example` (kept in sync with this list).
 | STT_PROVIDER | backend | `sarvam` (default) \| `deepgram` \| `whisper` |
 | LLM_API_KEY, LLM_BASE_URL, LLM_MODEL | backend | any OpenAI-compatible API |
 | TTS_PROVIDER, TTS_API_KEY | backend | `sarvam` (default) \| `elevenlabs` \| `azure` \| `google` |
-| SUPABASE_URL, SUPABASE_SERVICE_KEY | backend, scripts | service key never reaches the browser |
-| SUPABASE_DB_URL | scripts | Postgres connection string for `db_apply.py` / `seed.py` (these **wipe and reload** the database) |
+| SUPABASE_URL, SUPABASE_SERVICE_KEY | backend | Supabase API (Storage for recordings, Phase 4+); service key never reaches the browser |
+| SUPABASE_DB_URL | backend, scripts | Postgres connection string: the backend's pool (use the pooler URL when hosted) and `db_apply.py` / `seed.py` (these **wipe and reload** the database) |
+| PARTNER_PASSCODE_SECRET | backend | derives the per-business demo passcodes (default `vaani-demo`) |
 | VAANI_TEST_DB_URL | tests | optional throwaway Postgres for DB tests (tests wipe it); unset = tests start their own temporary cluster |
 | NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY | frontend | read-only under RLS |
 | NEXT_PUBLIC_BACKEND_URL | frontend | FastAPI base URL |

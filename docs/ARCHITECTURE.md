@@ -44,9 +44,10 @@ Every call runs through one engine and lands in one database, which pushes chang
 | Provider adapters | `backend/voice/stt.py`, `llm.py`, `tts.py` | Small interfaces chosen by env (`STT_PROVIDER`, `LLM_BASE_URL`/`LLM_MODEL`, `TTS_PROVIDER`) so we can compare stacks |
 | Normaliser | `backend/voice/normalizer.py` | Times, dates, ₹ amounts, party sizes → natural spoken te / hi / en-IN before TTS |
 | Flows | `backend/flows/` | Router, restaurant and hospital nodes (Pipecat Flows), global functions, shared `CallContext`, prompts per language, text CLI |
-| Tools | `backend/tools/` | Implement `CONTRACTS.md` §2; validate everything; write tool timeline; emit `tool_called` |
+| Tools | `backend/tools/` | Implement `CONTRACTS.md` §2 behind one runner (`run_tool`): Pydantic-validated args, coded errors, tool timeline, `tool_called` events |
 | Catalog | `backend/catalog/` | Pydantic models for the 9 data files, loader, cross-file validation, slot schedules (`schedule.py`), seed SQL generation |
-| Data access | `backend/db.py` (+ repository layer in Phase 2) | Postgres connection + SQL scripts for the scripts/tests; Phase 2 adds a repository interface with Supabase and in-memory implementations |
+| Data access | `backend/store.py` (async pool), `backend/db.py` (scripts) | The backend talks to Supabase Postgres directly over `SUPABASE_DB_URL`: lower latency per voice turn and real transactions; Realtime still fires because it watches the database. **Catalogue text** (names, aliases, ratings, rules, FAQs, phrases) is read from `data/` at startup; **live state** (slots, blocks, leave, bookings, payments, calls, events) always from Postgres |
+| Messaging, payments | `backend/messaging.py`, `backend/payments.py` | Messenger interface (mock now, Twilio in Phase 6); test-mode payment links, HMAC webhook check, `mark_paid` |
 | Post-call | `backend/postcall/` | Transcript with language tags, outcome JSON, tool timeline, latency, 2-line summary → `calls` |
 | API | `backend/api/` | REST endpoints, Twilio webhooks, payment webhook (signature check), dev simulate |
 | Eval | `backend/eval/` | `eval.py` (text replay of `test_calls.json`), `load_test.py` (N simulated audio callers) |

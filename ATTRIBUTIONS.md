@@ -8,7 +8,10 @@ Vaani is built on open-source libraries and third-party services. This file is u
 |---|---|---|
 | [Pipecat](https://github.com/pipecat-ai/pipecat) / Pipecat Flows | Voice pipeline and conversation flows | BSD-2-Clause |
 | [FastAPI](https://fastapi.tiangolo.com/) | Backend API | MIT |
-| [psycopg 3](https://www.psycopg.org/) | Postgres driver for scripts and tests | LGPL-3.0 |
+| [psycopg 3](https://www.psycopg.org/) + psycopg_pool | Postgres driver and async pool | LGPL-3.0 |
+| [Uvicorn](https://www.uvicorn.org/) | ASGI server | BSD-3-Clause |
+| [pydantic-settings](https://github.com/pydantic/pydantic-settings) | Settings from env | MIT |
+| [HTTPX](https://www.python-httpx.org/), [pytest-asyncio](https://github.com/pytest-dev/pytest-asyncio) | API tests | BSD-3-Clause / Apache-2.0 |
 | [python-dotenv](https://github.com/theskumar/python-dotenv) | Loads `.env` | BSD-3-Clause |
 | [PostgreSQL](https://www.postgresql.org/) | Database (via Supabase) | PostgreSQL Licence |
 | [Pydantic](https://docs.pydantic.dev/) | Data validation | MIT |

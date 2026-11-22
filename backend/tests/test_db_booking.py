@@ -20,11 +20,8 @@ pytestmark = pytest.mark.db
 
 
 @pytest.fixture(scope="module")
-def seeded(pg_url: str) -> str:
-    with psycopg.connect(pg_url, autocommit=True) as conn:
-        for name in SQL_FILES:
-            run_sql(conn, (SUPABASE_DIR / name).read_text(encoding="utf-8"))
-    return pg_url
+def seeded(seeded_url: str) -> str:
+    return seeded_url
 
 
 @pytest.fixture
